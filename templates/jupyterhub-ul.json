@@ -114,7 +114,7 @@
         },
 	{
 	    "name": "VAULT_URL",
-            "value": "ttps://vault-vault.svd-pca.svc.ulaval.ca",
+            "value": "https://vault-vault.svd-pca.svc.ulaval.ca",
 	    "required": true
 	 },
 	 {
@@ -327,6 +327,14 @@
                                     {
                                         "name": "S3_BUCKET",
                                         "value": "${S3_BUCKET}"
+                                    },
+                                    {
+                                        "name": "VAULT_URL",
+                                        "value": "${VAULT_URL}"
+                                    },
+                                    {
+                                        "name": "VAULT_CLIENT_TOKEN",
+                                        "value": "${VAULT_CLIENT_TOKEN}"
                                     }
                                 ],
                                 "volumeMounts": [
