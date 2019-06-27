@@ -71,9 +71,12 @@ c.GenericOAuthenticator.tls_verify = False
 import hvac
 def get_S3_keys(spawner):
     username=spawner.user.name
+    auth_state = yield user.get_auth_state()
+    if not auth_state:
+         return 
     vault_url = os.environ['VAULT_URL']
     client = hvac.Client(url=vault_url)
-    client.token = os.environ['VAULT_CLIENT_TOKEN']
+    client.token = auth_state['access_token']
     if client.is_authenticated():
         secret_version_response = client.secrets.kv.v2.read_secret_version(
             mount_point='valeria',
