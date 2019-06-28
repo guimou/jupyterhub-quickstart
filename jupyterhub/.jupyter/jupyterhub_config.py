@@ -79,9 +79,6 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         s3_endpoint_url = os.environ.get('S3_ENPOINT_URL')
         spawner.environment.update(dict(S3_ENPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY)) """
 
-# enable authentication state
-c.GitHubOAuthenticator.enable_auth_state = True
-
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     warnings.warn(
         "Need JUPYTERHUB_CRYPT_KEY env for persistent auth_state.\n"
@@ -104,6 +101,8 @@ c.EnvGenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' 
 c.EnvGenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
 c.EnvGenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 c.EnvGenericOAuthenticator.tls_verify = False
+# enable authentication state
+c.EnvGenericOAuthenticator.enable_auth_state = True
 
 
 # Populate admin users and use white list from config maps.
