@@ -46,53 +46,54 @@ keycloak_account_url = 'https://%s/auth/realms/%s/account' % (keycloak_hostname,
 with open('templates/vars.html', 'w') as fp:
     fp.write('{%% set keycloak_account_url = "%s" %%}' % keycloak_account_url)
 
+from oauthenticator.generic import GenericOAuthenticator
+from tornado import gen
+
+# Pre-Spawn custom class to retrieve secrets from Vault using user access token
+class EnvGenericOAuthenticator(GenericOAuthenticator):
+    @gen.coroutine
+    def pre_spawn_start(self, user, spawner):
+        import hvac
+        import pprint
+        auth_state = yield user.get_auth_state()
+        pprint.pprint(auth_state)
+        if not auth_state:
+            # user has no auth state
+            return
+        username=spawner.user.name
+        vault_url = os.environ['VAULT_URL']
+        client = hvac.Client(url=vault_url)
+        client.token = auth_state['access_token']
+        if client.is_authenticated():
+            secret_version_response = client.secrets.kv.v2.read_secret_version(
+                mount_point='valeria',
+                path='users/' + username + '/ceph',
+            )   
+            AWS_ACCESS_KEY_ID = secret_version_response['data']['data']['AWS_ACCESS_KEY_ID']
+            AWS_SECRET_ACCESS_KEY = secret_version_response['data']['data']['AWS_SECRET_ACCESS_KEY']
+        else:
+            AWS_ACCESS_KEY_ID = 'none'
+            AWS_SECRET_ACCESS_KEY = 'none'
+        # Retrieve S3ContentManager infomation and update env var to pass to notebooks
+        s3_endpoint_url = os.environ.get('S3_ENPOINT_URL')
+        spawner.environment.update(dict(S3_ENPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
+
+
+# Get OAuth2 configuration
 os.environ['OAUTH2_TOKEN_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/token' % (keycloak_hostname, keycloak_realm)
 os.environ['OAUTH2_AUTHORIZE_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/auth' % (keycloak_hostname, keycloak_realm)
 os.environ['OAUTH2_USERDATA_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/userinfo' % (keycloak_hostname, keycloak_realm)
-
 os.environ['OAUTH2_TLS_VERIFY'] = '0'
 os.environ['OAUTH_TLS_VERIFY'] = '0'
-
 os.environ['OAUTH2_USERNAME_KEY'] = 'preferred_username'
 
-from oauthenticator.generic import GenericOAuthenticator
-c.JupyterHub.authenticator_class = GenericOAuthenticator
-
-c.GenericOAuthenticator.login_service = "KeyCloak"
-
-c.GenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % jupyterhub_hostname
-
-c.GenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
-c.GenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
-
-c.GenericOAuthenticator.tls_verify = False
-
-# Get access and secret key for logged in user and inject in notebook
-import hvac
-def get_S3_keys(spawner):
-    username=spawner.user.name
-    auth_state = yield spawner.user.get_auth_state()
-    if not auth_state:
-         return 
-    vault_url = os.environ['VAULT_URL']
-    client = hvac.Client(url=vault_url)
-    client.token = auth_state['access_token']
-    if client.is_authenticated():
-        secret_version_response = client.secrets.kv.v2.read_secret_version(
-            mount_point='valeria',
-            path='users/' + username + '/ceph',
-        )   
-        AWS_ACCESS_KEY_ID = secret_version_response['data']['data']['AWS_ACCESS_KEY_ID']
-        AWS_SECRET_ACCESS_KEY = secret_version_response['data']['data']['AWS_SECRET_ACCESS_KEY']
-    else:
-        AWS_ACCESS_KEY_ID = 'none'
-        AWS_SECRET_ACCESS_KEY = 'none'
-    # Retrieve S3ContentManager infomation and update env var to pass to notebooks
-    s3_endpoint_url = os.environ.get('S3_ENPOINT_URL')
-    spawner.environment.update(dict(S3_ENPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
-
-c.Spawner.pre_spawn_hook = get_S3_keys
-
+# Configure authenticator
+c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
+c.EnvGenericOAuthenticator.login_service = "KeyCloak"
+c.EnvGenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % jupyterhub_hostname
+c.EnvGenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
+c.EnvGenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
+c.EnvGenericOAuthenticator.tls_verify = False
 
 
 # Populate admin users and use white list from config maps.
