@@ -47,11 +47,20 @@ keycloak_account_url = 'https://%s/auth/realms/%s/account' % (keycloak_hostname,
 with open('templates/vars.html', 'w') as fp:
     fp.write('{%% set keycloak_account_url = "%s" %%}' % keycloak_account_url)
 
+# Get OAuth2 configuration
+os.environ['OAUTH2_TOKEN_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/token' % (keycloak_hostname, keycloak_realm)
+os.environ['OAUTH2_AUTHORIZE_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/auth' % (keycloak_hostname, keycloak_realm)
+os.environ['OAUTH2_USERDATA_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/userinfo' % (keycloak_hostname, keycloak_realm)
+os.environ['OAUTH2_TLS_VERIFY'] = '0'
+os.environ['OAUTH_TLS_VERIFY'] = '0'
+os.environ['OAUTH2_USERNAME_KEY'] = 'preferred_username'
+
 from oauthenticator.generic import GenericOAuthenticator
 from tornado import gen
 
 # Pre-Spawn custom class to retrieve secrets from Vault using user access token
 class EnvGenericOAuthenticator(GenericOAuthenticator):
+
     @gen.coroutine
     def pre_spawn_start(self, user, spawner):
         import hvac
@@ -86,23 +95,16 @@ if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     )
     c.CryptKeeper.keys = [ os.urandom(32) ]
 
-# Get OAuth2 configuration
-os.environ['OAUTH2_TOKEN_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/token' % (keycloak_hostname, keycloak_realm)
-os.environ['OAUTH2_AUTHORIZE_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/auth' % (keycloak_hostname, keycloak_realm)
-os.environ['OAUTH2_USERDATA_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/userinfo' % (keycloak_hostname, keycloak_realm)
-os.environ['OAUTH2_TLS_VERIFY'] = '0'
-os.environ['OAUTH_TLS_VERIFY'] = '0'
-os.environ['OAUTH2_USERNAME_KEY'] = 'preferred_username'
 
 # Configure authenticator
-c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
-c.EnvGenericOAuthenticator.login_service = "KeyCloak"
-c.EnvGenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % jupyterhub_hostname
-c.EnvGenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
-c.EnvGenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
-c.EnvGenericOAuthenticator.tls_verify = False
+c.JupyterHub.authenticator_class = GenericOAuthenticator
+c.GenericOAuthenticator.login_service = "KeyCloak"
+c.GenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % jupyterhub_hostname
+c.GenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
+c.GenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
+c.GenericOAuthenticator.tls_verify = False
 # enable authentication state
-c.EnvGenericOAuthenticator.enable_auth_state = True
+# c.EnvGenericOAuthenticator.enable_auth_state = True
 
 
 # Populate admin users and use white list from config maps.
