@@ -66,7 +66,8 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         import hvac
         import pprint
         auth_state = yield user.get_auth_state()
-        print(auth_state)
+        print('name:' + user.name)
+        print('token:' + auth_state['access_token'])
         if not auth_state:
             # user has no auth state
             return
