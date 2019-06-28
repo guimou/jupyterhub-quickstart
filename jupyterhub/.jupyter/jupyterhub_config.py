@@ -71,7 +71,7 @@ c.GenericOAuthenticator.tls_verify = False
 import hvac
 def get_S3_keys(spawner):
     username=spawner.user.name
-    auth_state = yield user.get_auth_state()
+    auth_state = yield spawner.user.get_auth_state()
     if not auth_state:
          return 
     vault_url = os.environ['VAULT_URL']
