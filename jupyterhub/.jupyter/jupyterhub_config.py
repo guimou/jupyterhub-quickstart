@@ -1,4 +1,5 @@
 import os
+import warnings
 from ulkubespawner import ULKubeSpawner
 
 # Load custom spawner class to integrate images list and container specs
@@ -78,6 +79,15 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         s3_endpoint_url = os.environ.get('S3_ENPOINT_URL')
         spawner.environment.update(dict(S3_ENPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
 
+# enable authentication state
+c.GitHubOAuthenticator.enable_auth_state = True
+
+if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
+    warnings.warn(
+        "Need JUPYTERHUB_CRYPT_KEY env for persistent auth_state.\n"
+        "    export JUPYTERHUB_CRYPT_KEY=$(openssl rand -hex 32)"
+    )
+    c.CryptKeeper.keys = [ os.urandom(32) ]
 
 # Get OAuth2 configuration
 os.environ['OAUTH2_TOKEN_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/token' % (keycloak_hostname, keycloak_realm)
