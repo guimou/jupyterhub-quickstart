@@ -70,7 +70,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         if not auth_state:
             # user has no auth state
             return
-        """username=spawner.user.name
+        username=spawner.user.name
         vault_url = os.environ['VAULT_URL']
         client = hvac.Client(url=vault_url)
         client.token = auth_state['access_token']
@@ -86,7 +86,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             AWS_SECRET_ACCESS_KEY = 'none'
         # Retrieve S3ContentManager infomation and update env var to pass to notebooks
         s3_endpoint_url = os.environ.get('S3_ENPOINT_URL')
-        spawner.environment.update(dict(S3_ENPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY)) """
+        spawner.environment.update(dict(S3_ENPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     warnings.warn(
@@ -97,14 +97,14 @@ if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
 
 
 # Configure authenticator
-c.JupyterHub.authenticator_class = GenericOAuthenticator
+c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
 c.GenericOAuthenticator.login_service = "KeyCloak"
 c.GenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % jupyterhub_hostname
 c.GenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
 c.GenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 c.GenericOAuthenticator.tls_verify = False
 # enable authentication state
-# c.EnvGenericOAuthenticator.enable_auth_state = True
+c.GenericOAuthenticator.enable_auth_state = True
 
 
 # Populate admin users and use white list from config maps.
