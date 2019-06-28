@@ -57,11 +57,11 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         import hvac
         import pprint
         auth_state = yield user.get_auth_state()
-        pprint.pprint(auth_state)
+        print(auth_state)
         if not auth_state:
             # user has no auth state
             return
-        username=spawner.user.name
+        """username=spawner.user.name
         vault_url = os.environ['VAULT_URL']
         client = hvac.Client(url=vault_url)
         client.token = auth_state['access_token']
@@ -77,7 +77,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             AWS_SECRET_ACCESS_KEY = 'none'
         # Retrieve S3ContentManager infomation and update env var to pass to notebooks
         s3_endpoint_url = os.environ.get('S3_ENPOINT_URL')
-        spawner.environment.update(dict(S3_ENPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
+        spawner.environment.update(dict(S3_ENPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY)) """
 
 # enable authentication state
 c.GitHubOAuthenticator.enable_auth_state = True
