@@ -64,17 +64,26 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
     @gen.coroutine
     def pre_spawn_start(self, user, spawner):
         import hvac
+        import json
         import pprint
+        import requests
         auth_state = yield user.get_auth_state()
-        print('name:' + user.name)
-        print('token:' + auth_state['access_token'])
         if not auth_state:
             # user has no auth state
             return
+        jwt = auth_state['access_token']
+        print('name:' + user.name)
+        print('token:' + jwt)
+        url = 'https://vault-vault.svd-pca.svc.ulaval.ca/v1/auth/jwt/login'
+        payload = {"role":"","jwt":jwt}
+
+        # POST with JSON 
+        r = requests.post(url, data=json.dumps(payload))
+
         username=spawner.user.name
         vault_url = os.environ['VAULT_URL']
         client = hvac.Client(url=vault_url)
-        client.token = auth_state['access_token']
+        client.token = r.
         if client.is_authenticated():
             secret_version_response = client.secrets.kv.v2.read_secret_version(
                 mount_point='valeria',
