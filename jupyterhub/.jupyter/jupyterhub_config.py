@@ -82,6 +82,8 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         # Retrieve user entity id and token
         vault_token = (vault_response_login.json())['auth']['client_token']
         vault_entity_id = (vault_response_login.json())['auth']['entity_id']
+        print ('Vault token :' + vault_token)
+        print ('ID Vault :' + vault_entity_id)
         
         # Connect to Vault and retrieve info (finally!)
         vault_client = hvac.Client(url=vault_url, token=vault_token)
