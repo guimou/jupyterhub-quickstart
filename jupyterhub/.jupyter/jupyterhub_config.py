@@ -60,34 +60,36 @@ from tornado import gen
 
 # Pre-Spawn custom class to retrieve secrets from Vault using user access token
 class EnvGenericOAuthenticator(GenericOAuthenticator):
-
     @gen.coroutine
     def pre_spawn_start(self, user, spawner):
         import hvac
         import json
-        import pprint
         import requests
+
+        # Retrieve user authentication info
         auth_state = yield user.get_auth_state()
         if not auth_state:
             # user has no auth state
             return
-        jwt = auth_state['access_token']
-        print('name:' + user.name)
-        print('token:' + jwt)
-        url = 'https://vault-vault.svd-pca.svc.ulaval.ca/v1/auth/jwt/login'
-        payload = {"role":"","jwt":jwt}
 
-        # POST with JSON 
-        r = requests.post(url, data=json.dumps(payload))
-
-        username=spawner.user.name
         vault_url = os.environ['VAULT_URL']
-        client = hvac.Client(url=vault_url)
-        client.token = r.
-        if client.is_authenticated():
-            secret_version_response = client.secrets.kv.v2.read_secret_version(
+        vault_login_url = vault_url + '/v1/auth/jwt/login'
+        vault_login_json = '''{"role":null, "jwt": "''' + auth_state['access_token'] + '''"}'''
+
+        # Login to Vault with JWT 
+        vault_response_login = requests.post(url = vault_login_url, json = json.loads(vault_login_json))
+
+        # Retrieve user entity id and token
+        vault_token = (vault_response_login.json())['auth']['client_token']
+        vault_entity_id = (vault_response_login.json())['auth']['entity_id']
+        
+        # Connect to Vault and retrieve info (finally!)
+        vault_client = hvac.Client(url=vault_url, token=vault_token)
+
+        if vault_client.is_authenticated():
+            secret_version_response = vault_client.secrets.kv.v2.read_secret_version(
                 mount_point='valeria',
-                path='users/' + username + '/ceph',
+                path='users/' + vault_entity_id + '/ceph',
             )   
             AWS_ACCESS_KEY_ID = secret_version_response['data']['data']['AWS_ACCESS_KEY_ID']
             AWS_SECRET_ACCESS_KEY = secret_version_response['data']['data']['AWS_SECRET_ACCESS_KEY']
