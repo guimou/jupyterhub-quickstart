@@ -1,5 +1,4 @@
 -e git+https://github.com/guimou/jupyterhub-quickstart.git@master#egg=ulkubespawner&subdirectory=valeria_spawner
 openshift==0.8.6
 hvac==0.9.1
-jupyterhub==1.0.0
 pycurl==7.43.0.3
