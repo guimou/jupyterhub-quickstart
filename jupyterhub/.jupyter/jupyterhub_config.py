@@ -79,8 +79,9 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         # Login to Vault with JWT 
         vault_response_login = requests.post(url = vault_login_url, json = json.loads(vault_login_json))
 
-        # Retrieve user token
+        # Retrieve user entity id and token
         vault_token = (vault_response_login.json())['auth']['client_token']
+        vault_entity_id = (vault_response_login.json())['auth']['entity_id']
         
         # Connect to Vault and retrieve info (finally!)
         vault_client = hvac.Client(url=vault_url, token=vault_token)
@@ -88,7 +89,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         if vault_client.is_authenticated():
             secret_version_response = vault_client.secrets.kv.v2.read_secret_version(
                 mount_point='valeria',
-                path='users/' + user.name + '/ceph',
+                path='users/' + vault_entity_id + '/ceph',
             )   
             AWS_ACCESS_KEY_ID = secret_version_response['data']['data']['AWS_ACCESS_KEY_ID']
             AWS_SECRET_ACCESS_KEY = secret_version_response['data']['data']['AWS_SECRET_ACCESS_KEY']
