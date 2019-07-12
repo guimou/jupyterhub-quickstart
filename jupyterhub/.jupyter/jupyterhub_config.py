@@ -19,16 +19,18 @@ if os.environ.get('JUPYTERHUB_ENABLE_LAB', 'false').lower() in ['true', 'yes', '
 # Setup location for customised template files.
 c.JupyterHub.template_paths = ['/opt/app-root/src/templates']
 
-# Configure KeyCloak as authentication provider.
-from openshift import client, config
+# Configure Jupyterhub hostname
+from kubernetes import client, config
+from openshift.dynamic import DynamicClient
 
 with open('/var/run/secrets/kubernetes.io/serviceaccount/namespace') as fp:
     namespace = fp.read().strip()
 
 config.load_incluster_config()
-oapi = client.OapiApi()
+dyn_client = DynamicClient(ApiClient())
 
-routes = oapi.list_namespaced_route(namespace)
+v1_routes = dyn_client.resources.get(api_version='route.openshift.io/v1', kind='Route')
+routes = v1_routes.get(namespace=namespace)
 
 def extract_hostname(routes, name):
     for route in routes.items:
@@ -38,27 +40,11 @@ def extract_hostname(routes, name):
 jupyterhub_name = os.environ.get('JUPYTERHUB_SERVICE_NAME')
 jupyterhub_hostname = extract_hostname(routes, jupyterhub_name)
 
-keycloak_hostname = 'keycloak-valeriademo.svd-pca.svc.ulaval.ca'
 
-keycloak_realm = os.environ.get('KEYCLOAK_REALM')
-
-keycloak_account_url = 'https://%s/auth/realms/%s/account' % (keycloak_hostname, keycloak_realm)
-
-with open('templates/vars.html', 'w') as fp:
-    fp.write('{%% set keycloak_account_url = "%s" %%}' % keycloak_account_url)
-
-# Get OAuth2 configuration
-os.environ['OAUTH2_TOKEN_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/token' % (keycloak_hostname, keycloak_realm)
-os.environ['OAUTH2_AUTHORIZE_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/auth' % (keycloak_hostname, keycloak_realm)
-os.environ['OAUTH2_USERDATA_URL'] = 'https://%s/auth/realms/%s/protocol/openid-connect/userinfo' % (keycloak_hostname, keycloak_realm)
-os.environ['OAUTH2_TLS_VERIFY'] = '0'
-os.environ['OAUTH_TLS_VERIFY'] = '0'
-os.environ['OAUTH2_USERNAME_KEY'] = 'preferred_username'
-
+# Pre-Spawn custom class to retrieve secrets from Vault using user access token
 from oauthenticator.generic import GenericOAuthenticator
 from tornado import gen
 
-# Pre-Spawn custom class to retrieve secrets from Vault using user access token
 class EnvGenericOAuthenticator(GenericOAuthenticator):
     @gen.coroutine
     def pre_spawn_start(self, user, spawner):
@@ -108,8 +94,16 @@ if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     c.CryptKeeper.keys = [ os.urandom(32) ]
 
 
-# Configure authenticator
+# Configure KeyCloak as authentication provider.
+keycloak_hostname = os.environ.get('KEYCLOAK_HOSTNAME')
+keycloak_realm = os.environ.get('KEYCLOAK_REALM')
+keycloak_account_url = 'https://%s/auth/realms/%s/account' % (keycloak_hostname, keycloak_realm)
+
+with open('templates/vars.html', 'w') as fp:
+    fp.write('{%% set keycloak_account_url = "%s" %%}' % keycloak_account_url)
+
 c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
+c.JupyterHub.authenticator_class.login_handler._OAUTH_AUTHORIZE_URL = 'https://%s/auth/realms/%s/protocol/openid-connect/auth' % (keycloak_hostname, keycloak_realm)
 c.GenericOAuthenticator.login_service = "KeyCloak"
 c.GenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % jupyterhub_hostname
 c.GenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
