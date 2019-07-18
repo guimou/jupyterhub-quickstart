@@ -60,14 +60,14 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
 
         vault_url = os.environ['VAULT_URL']
         vault_login_url = vault_url + '/v1/auth/jwt/login'
-        vault_login_json = '''{"role":null, "jwt": "''' + auth_state['access_token'] + '''"}'''
+        vault_login_json = {"role":None, "jwt": auth_state['access_token']}
 
         # Login to Vault with JWT 
-        vault_response_login = requests.post(url = vault_login_url, json = json.loads(vault_login_json))
+        vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
 
         # Retrieve user entity id and token
-        vault_token = (vault_response_login.json())['auth']['client_token']
-        vault_entity_id = (vault_response_login.json())['auth']['entity_id']
+        vault_token = vault_response_login['auth']['client_token']
+        vault_entity_id = vault_response_login['auth']['entity_id']
         
         # Connect to Vault and retrieve info (finally!)
         vault_client = hvac.Client(url=vault_url, token=vault_token)
