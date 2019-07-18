@@ -10,7 +10,7 @@ pip install -U pip setuptools wheel
 
 # Install base packages needed for running JupyterHub.
 
-pip install -r /tmp/src/requirements.txt
+pip install --trusted-host=pypi.org --trusted-host=files.pythonhosted.org -r /tmp/src/requirements.txt
 
 # Install npm packages required by JupyterHub.
 
