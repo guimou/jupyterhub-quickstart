@@ -2,10 +2,10 @@
     "kind": "Template",
     "apiVersion": "template.openshift.io/v1",
     "metadata": {
-        "name": "jupyterhub-ul-deployer",
+        "name": "valeria-jupyterhub-deployer",
         "annotations": {
-            "openshift.io/display-name": "JupyterHub UL Deployer",
-            "description": "Template for deploying a JupyterHub UL instance.",
+            "openshift.io/display-name": "Valeria JupyterHub Deployer",
+            "description": "Template for deploying a Valeria JupyterHub instance.",
             "iconClass": "icon-python",
             "tags": "python,jupyter,jupyterhub"
         }
@@ -17,22 +17,43 @@
             "required": true
         },
         {
-            "name": "JUPYTERHUB_IMAGE",
-            "value": "jupyterhub:3.0.7",
+            "name": "JUPYTERHUB_SERVICE_NAME",
+            "value": "jupyterhub",
             "required": true
         },
         {
-            "name": "NOTEBOOK_IMAGE",
+            "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
             "value": "s2i-minimal-notebook:3.6",
             "required": true
         },
         {
-            "name": "JUPYTERHUB_CONFIG",
+            "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
+            "description": "Amount of memory available to JupyterHub.",
+            "value": "512Mi",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_IDLE_TIMEOUT",
+            "value": "3600",
+            "required": false
+        },
+        {
+            "name": "JUPYTERHUB_ADMIN_USERS",
             "value": "",
             "required": false
         },
         {
-            "name": "DATABASE_PASSWORD",
+            "name": "JUPYTERHUB_DATABASE_HOST",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_DATABASE_NAME",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_DATABASE_PASSWORD",
             "generate": "expression",
             "from": "[a-zA-Z0-9]{16}",
             "required": true
@@ -41,34 +62,6 @@
             "name": "COOKIE_SECRET",
             "generate": "expression",
             "from": "[a-f0-9]{32}",
-            "required": true
-        },
-        {
-            "name": "JUPYTERHUB_MEMORY",
-            "description": "Amount of memory available to JupyterHub.",
-            "value": "512Mi",
-            "required": true
-        },
-        {
-            "name": "DATABASE_MEMORY",
-            "description": "Amount of memory available to PostgreSQL.",
-            "value": "512Mi",
-            "required": true
-        },
-        {
-            "name": "NOTEBOOK_MEMORY",
-            "description": "Amount of memory available to each notebook.",
-            "value": "512Mi",
-            "required": true
-        },
-        {
-            "name": "JUPYTERHUB_ADMIN_USERS",
-            "value": "",
-            "required": false
-        },
-        {
-            "name": "JUPYTERHUB_SERVICE_NAME",
-            "value": "",
             "required": true
         },
         {
@@ -83,45 +76,24 @@
         },
         {
             "name": "OAUTH_CLIENT_SECRET",
-            "generate": "expression",
-            "from": "[a-f0-9]{32}",
-            "required": true
-        },
-        {
-            "name": "JUPYTERHUB_IDLE_TIMEOUT",
-            "value": "3600",
-            "required": false
-        },
-        {
-            "name": "S3_ACCESS_KEY_ID",
             "value": "",
             "required": true
         },
         {
-            "name": "S3_SECRET_ACCESS_KEY",
-            "value": "",
+            "name": "VAULT_URL",
+                "value": "",
             "required": true
         },
         {
             "name": "S3_ENPOINT_URL",
-            "value": "http://rgw-svd.exp.ulaval.ca",
+            "value": "",
             "required": true
         },
         {
             "name": "S3_BUCKET",
             "value": "jupyter-bucket",
             "required": true
-        },
-	{
-	    "name": "VAULT_URL",
-            "value": "https://vault-vault.svd-pca.svc.ulaval.ca",
-	    "required": true
-	 },
-	 {
-	    "name": "VAULT_CLIENT_TOKEN",
-            "value": "s.VyUW4VZAn195JTnq8evKRXfX",
-	    "required": true
-	 }
+        }
     ],
     "objects": [
         {
