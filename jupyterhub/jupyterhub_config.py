@@ -159,7 +159,8 @@ else:
     c.JupyterHub.cookie_secret_file = '/opt/app-root/data/cookie_secret'
 
 if os.environ.get('JUPYTERHUB_DATABASE_PASSWORD'):
-    c.JupyterHub.db_url = 'postgresql://jupyterhub:%s@%s:5432/%s' % (
+    c.JupyterHub.db_url = 'postgresql://%s:%s@%s:5432/%s' % (
+            os.environ.get('JUPYTERHUB_DATABASE_USER','jupyterhub'),
             os.environ['JUPYTERHUB_DATABASE_PASSWORD'],
             os.environ['JUPYTERHUB_DATABASE_HOST'],
             os.environ.get('JUPYTERHUB_DATABASE_NAME', 'jupyterhub'))

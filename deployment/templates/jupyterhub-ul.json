@@ -6,7 +6,7 @@
         "annotations": {
             "openshift.io/display-name": "Valeria JupyterHub Deployer",
             "description": "Template for deploying a Valeria JupyterHub instance.",
-            "iconClass": "icon-python",
+            "iconClass": "icon-valeria",
             "tags": "python,jupyter,jupyterhub"
         }
     },
@@ -17,8 +17,52 @@
             "required": true
         },
         {
+            "name": "JUPYTERHUB_IMAGE",
+            "value": "jupyterhub",
+            "required": true
+        },
+        {
             "name": "JUPYTERHUB_SERVICE_NAME",
             "value": "jupyterhub",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_MEMORY",
+            "description": "Amount of memory available to JupyterHub.",
+            "value": "512Mi",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_DATABASE_HOST",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_DATABASE_NAME",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_DATABASE_USER",
+            "value": "jupyterhub",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_DATABASE_PASSWORD",
+            "generate": "expression",
+            "from": "[a-zA-Z0-9]{16}",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_COOKIE_SECRET",
+            "generate": "expression",
+            "from": "[a-f0-9]{32}",
+            "required": true
+        },
+        {
+            "name": "JUPYTERHUB_CRYPT_KEY",
+            "generate": "expression",
+            "from": "[a-f0-9]{64}",
             "required": true
         },
         {
@@ -28,7 +72,6 @@
         },
         {
             "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
-            "description": "Amount of memory available to JupyterHub.",
             "value": "512Mi",
             "required": true
         },
@@ -43,26 +86,14 @@
             "required": false
         },
         {
-            "name": "JUPYTERHUB_DATABASE_HOST",
+            "name": "JUPYTERHUB_CONFIG",
             "value": "",
-            "required": true
+            "required": false
         },
         {
-            "name": "JUPYTERHUB_DATABASE_NAME",
+            "name": "KEYCLOAK_HOSTNAME",
             "value": "",
-            "required": true
-        },
-        {
-            "name": "JUPYTERHUB_DATABASE_PASSWORD",
-            "generate": "expression",
-            "from": "[a-zA-Z0-9]{16}",
-            "required": true
-        },
-        {
-            "name": "COOKIE_SECRET",
-            "generate": "expression",
-            "from": "[a-f0-9]{32}",
-            "required": true
+            "required": false
         },
         {
             "name": "KEYCLOAK_REALM",
@@ -80,12 +111,27 @@
             "required": true
         },
         {
+            "name": "OAUTH2_TOKEN_URL",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "OAUTH2_USERDATA_URL",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "OAUTH2_USERNAME_KEY",
+            "value": "",
+            "required": true
+        },
+        {
             "name": "VAULT_URL",
                 "value": "",
             "required": true
         },
         {
-            "name": "S3_ENPOINT_URL",
+            "name": "S3_ENDPOINT_URL",
             "value": "",
             "required": true
         },
@@ -202,16 +248,20 @@
                                 },
                                 "env": [
                                     {
+                                        "name": "JUPYTERHUB_DATABASE_USER",
+                                        "value": "${JUPYTERHUB_DATABASE_USER}"
+                                    },
+                                    {
                                         "name": "JUPYTERHUB_DATABASE_PASSWORD",
-                                        "value": "${DATABASE_PASSWORD}"
+                                        "value": "${JUPYTERHUB_DATABASE_PASSWORD}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_HOST",
-                                        "value": "${APPLICATION_NAME}-db"
+                                        "value": "${JUPYTERHUB_DATABASE_HOST}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_NAME",
-                                        "value": "postgres"
+                                        "value": "${JUPYTERHUB_DATABASE_NAME}"
                                     }
                                 ]
                             }
@@ -242,23 +292,27 @@
                                     },
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
-                                        "value": "${NOTEBOOK_MEMORY}"
+                                        "value": "${JUPYTERHUB_NOTEBOOK_MEMORY}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_PASSWORD",
-                                        "value": "${DATABASE_PASSWORD}"
+                                        "value": "${JUPYTERHUB_DATABASE_PASSWORD}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_HOST",
-                                        "value": "${APPLICATION_NAME}-db"
+                                        "value": "${JUPYTERHUB_DATABASE_HOST}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_NAME",
-                                        "value": "postgres"
+                                        "value": "${JUPYTERHUB_DATABASE_NAME}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_COOKIE_SECRET",
-                                        "value": "${COOKIE_SECRET}"
+                                        "value": "${JUPYTERHUB_COOKIE_SECRET}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_CRYPT_KEY",
+                                        "value": "${JUPYTERHUB_CRYPT_KEY}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_ADMIN_USERS",
@@ -267,6 +321,14 @@
                                     {
                                         "name": "JUPYTERHUB_SERVICE_NAME",
                                         "value": "${JUPYTERHUB_SERVICE_NAME}"
+                                    },
+                                    {
+                                        "name": "JUPYTERHUB_IDLE_TIMEOUT",
+                                        "value": "${JUPYTERHUB_IDLE_TIMEOUT}"
+                                    },
+                                    {
+                                        "name": "KEYCLOAK_HOSTNAME",
+                                        "value": "${KEYCLOAK_HOSTNAME}"
                                     },
                                     {
                                         "name": "KEYCLOAK_REALM",
@@ -281,20 +343,20 @@
                                         "value": "${OAUTH_CLIENT_SECRET}"
                                     },
                                     {
-                                        "name": "JUPYTERHUB_IDLE_TIMEOUT",
-                                        "value": "${JUPYTERHUB_IDLE_TIMEOUT}"
+                                        "name": "OAUTH2_TOKEN_URL",
+                                        "value": "${OAUTH2_TOKEN_URL}"
                                     },
                                     {
-                                        "name": "S3_ACCESS_KEY_ID",
-                                        "value": "${S3_ACCESS_KEY_ID}"
+                                        "name": "OAUTH2_USERDATA_URL",
+                                        "value": "${OAUTH2_USERDATA_URL}"
                                     },
                                     {
-                                        "name": "S3_SECRET_ACCESS_KEY",
-                                        "value": "${S3_SECRET_ACCESS_KEY}"
+                                        "name": "OAUTH2_USERNAME_KEY",
+                                        "value": "${OAUTH2_USERNAME_KEY}"
                                     },
                                     {
-                                        "name": "S3_ENPOINT_URL",
-                                        "value": "${S3_ENPOINT_URL}"
+                                        "name": "S3_ENDPOINT_URL",
+                                        "value": "${S3_ENDPOINT_URL}"
                                     },
                                     {
                                         "name": "S3_BUCKET",
@@ -303,10 +365,6 @@
                                     {
                                         "name": "VAULT_URL",
                                         "value": "${VAULT_URL}"
-                                    },
-                                    {
-                                        "name": "VAULT_CLIENT_TOKEN",
-                                        "value": "${VAULT_CLIENT_TOKEN}"
                                     }
                                 ],
                                 "volumeMounts": [
@@ -382,165 +440,6 @@
                 "tls": {
                     "termination": "edge",
                     "insecureEdgeTerminationPolicy": "Redirect"
-                }
-            }
-        },
-        {
-            "kind": "PersistentVolumeClaim",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "${APPLICATION_NAME}-db",
-                "labels": {
-                    "app": "${APPLICATION_NAME}"
-                }
-            },
-            "spec": {
-                "accessModes": [
-                    "ReadWriteOnce"
-                ],
-                "resources": {
-                    "requests": {
-                        "storage": "1Gi"
-                    }
-                }
-            }
-        },
-        {
-            "kind": "DeploymentConfig",
-            "apiVersion": "apps.openshift.io/v1",
-            "metadata": {
-                "name": "${APPLICATION_NAME}-db",
-                "labels": {
-                    "app": "${APPLICATION_NAME}"
-                }
-            },
-            "spec": {
-                "replicas": 1,
-                "selector": {
-                    "app": "${APPLICATION_NAME}",
-                    "deploymentconfig": "${APPLICATION_NAME}-db"
-                },
-                "strategy": {
-                    "type": "Recreate"
-                },
-                "template": {
-                    "metadata": {
-                        "labels": {
-                            "app": "${APPLICATION_NAME}",
-                            "deploymentconfig": "${APPLICATION_NAME}-db"
-                        }
-                    },
-                    "spec": {
-                        "containers": [
-                            {
-                                "name": "postgresql",
-                                "env": [
-                                    {
-                                        "name": "POSTGRESQL_USER",
-                                        "value": "jupyterhub"
-                                    },
-                                    {
-                                        "name": "POSTGRESQL_PASSWORD",
-                                        "value": "${DATABASE_PASSWORD}"
-                                    },
-                                    {
-                                        "name": "POSTGRESQL_DATABASE",
-                                        "value": "postgres"
-                                    }
-                                ],
-                                "livenessProbe": {
-                                    "tcpSocket": {
-                                        "port": 5432
-                                    }
-                                },
-                                "ports": [
-                                    {
-                                        "containerPort": 5432,
-                                        "protocol": "TCP"
-                                    }
-                                ],
-                                "resources": {
-                                    "limits": {
-                                        "memory": "${DATABASE_MEMORY}"
-                                    }
-                                },
-                                "readinessProbe": {
-                                    "exec": {
-                                        "command": [
-                                            "/bin/sh",
-                                            "-i",
-                                            "-c",
-                                            "psql -h 127.0.0.1 -U $POSTGRESQL_USER -q -d $POSTGRESQL_DATABASE -c 'SELECT 1'"
-                                        ]
-                                    }
-                                },
-                                "volumeMounts": [
-                                    {
-                                        "mountPath": "/var/lib/pgsql/data",
-                                        "name": "data"
-                                    }
-                                ]
-                            }
-                        ],
-                        "volumes": [
-                            {
-                                "name": "data",
-                                "persistentVolumeClaim": {
-                                    "claimName": "${APPLICATION_NAME}-db"
-                                }
-                            },
-                            {
-                                "name": "config",
-                                "configMap": {
-                                    "name": "${APPLICATION_NAME}-cfg",
-                                    "defaultMode": 420
-                                }
-                            }
-                        ]
-                    }
-                },
-                "triggers": [
-                    {
-                        "imageChangeParams": {
-                            "automatic": true,
-                            "containerNames": [
-                                "postgresql"
-                            ],
-                            "from": {
-                                "kind": "ImageStreamTag",
-                                "name": "postgresql:9.5",
-                                "namespace": "openshift"
-                            }
-                        },
-                        "type": "ImageChange"
-                    },
-                    {
-                        "type": "ConfigChange"
-                    }
-                ]
-            }
-        },
-        {
-            "kind": "Service",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "${APPLICATION_NAME}-db",
-                "labels": {
-                    "app": "${APPLICATION_NAME}"
-                }
-            },
-            "spec": {
-                "ports": [
-                    {
-                        "name": "5432-tcp",
-                        "protocol": "TCP",
-                        "port": 5432,
-                        "targetPort": 5432
-                    }
-                ],
-                "selector": {
-                    "app": "${APPLICATION_NAME}",
-                    "deploymentconfig": "${APPLICATION_NAME}-db"
                 }
             }
         }

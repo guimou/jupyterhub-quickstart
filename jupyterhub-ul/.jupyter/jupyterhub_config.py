@@ -113,8 +113,8 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             AWS_ACCESS_KEY_ID = 'none'
             AWS_SECRET_ACCESS_KEY = 'none'
         # Retrieve S3ContentManager infomation and update env var to pass to notebooks
-        s3_endpoint_url = os.environ.get('S3_ENPOINT_URL')
-        spawner.environment.update(dict(S3_ENPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
+        s3_endpoint_url = os.environ.get('S3_ENDPOINT_URL')
+        spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     warnings.warn(
