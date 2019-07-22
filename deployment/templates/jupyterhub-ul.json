@@ -18,7 +18,7 @@
         },
         {
             "name": "JUPYTERHUB_IMAGE",
-            "value": "jupyterhub",
+            "value": "jupyterhub-valeria:tag",
             "required": true
         },
         {
@@ -49,8 +49,7 @@
         },
         {
             "name": "JUPYTERHUB_DATABASE_PASSWORD",
-            "generate": "expression",
-            "from": "[a-zA-Z0-9]{16}",
+            "value": "",
             "required": true
         },
         {
