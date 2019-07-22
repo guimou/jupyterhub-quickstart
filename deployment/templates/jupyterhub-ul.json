@@ -272,8 +272,22 @@
                                         "value": "${JUPYTERHUB_NOTEBOOK_MEMORY}"
                                     },
                                     {
+                                        "name": "JUPYTERHUB_DATABASE_USER",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "valeria-jupyterhub-secrets",
+                                                "key": "database_username"
+                                            }
+                                        }
+                                    },
+                                    {
                                         "name": "JUPYTERHUB_DATABASE_PASSWORD",
-                                        "value": "${JUPYTERHUB_DATABASE_PASSWORD}"
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "valeria-jupyterhub-secrets",
+                                                "key": "database_password"
+                                            }
+                                        }
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_HOST",
