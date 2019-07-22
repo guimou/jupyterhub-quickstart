@@ -265,7 +265,7 @@
                                     },
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
-                                        "value": "${NOTEBOOK_IMAGE}"
+                                        "value": "${JUPYTERHUB_NOTEBOOK_IMAGE}"
                                     },
                                     {
                                         "name": "JUPYTERHUB_NOTEBOOK_MEMORY",
