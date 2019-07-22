@@ -43,28 +43,6 @@
             "required": true
         },
         {
-            "name": "JUPYTERHUB_DATABASE_USER",
-            "value": "jupyterhub",
-            "required": true
-        },
-        {
-            "name": "JUPYTERHUB_DATABASE_PASSWORD",
-            "value": "",
-            "required": true
-        },
-        {
-            "name": "JUPYTERHUB_COOKIE_SECRET",
-            "generate": "expression",
-            "from": "[a-f0-9]{32}",
-            "required": true
-        },
-        {
-            "name": "JUPYTERHUB_CRYPT_KEY",
-            "generate": "expression",
-            "from": "[a-f0-9]{64}",
-            "required": true
-        },
-        {
             "name": "JUPYTERHUB_NOTEBOOK_IMAGE",
             "value": "s2i-minimal-notebook:3.6",
             "required": true
@@ -98,16 +76,6 @@
             "name": "KEYCLOAK_REALM",
             "value": "",
             "required": false
-        },
-        {
-            "name": "OAUTH_CLIENT_ID",
-            "value": "",
-            "required": false
-        },
-        {
-            "name": "OAUTH_CLIENT_SECRET",
-            "value": "",
-            "required": true
         },
         {
             "name": "OAUTH2_TOKEN_URL",
@@ -248,11 +216,21 @@
                                 "env": [
                                     {
                                         "name": "JUPYTERHUB_DATABASE_USER",
-                                        "value": "${JUPYTERHUB_DATABASE_USER}"
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "valeria-jupyterhub-secrets",
+                                                "key": "database_username"
+                                            }
+                                        }
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_PASSWORD",
-                                        "value": "${JUPYTERHUB_DATABASE_PASSWORD}"
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "valeria-jupyterhub-secrets",
+                                                "key": "database_password"
+                                            }
+                                        }
                                     },
                                     {
                                         "name": "JUPYTERHUB_DATABASE_HOST",
@@ -307,11 +285,21 @@
                                     },
                                     {
                                         "name": "JUPYTERHUB_COOKIE_SECRET",
-                                        "value": "${JUPYTERHUB_COOKIE_SECRET}"
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "valeria-jupyterhub-secrets",
+                                                "key": "cookie_secret"
+                                            }
+                                        }
                                     },
                                     {
                                         "name": "JUPYTERHUB_CRYPT_KEY",
-                                        "value": "${JUPYTERHUB_CRYPT_KEY}"
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "valeria-jupyterhub-secrets",
+                                                "key": "crypt_key"
+                                            }
+                                        }
                                     },
                                     {
                                         "name": "JUPYTERHUB_ADMIN_USERS",
@@ -335,11 +323,21 @@
                                     },
                                     {
                                         "name": "OAUTH_CLIENT_ID",
-                                        "value": "${OAUTH_CLIENT_ID}"
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "valeria-jupyterhub-secrets",
+                                                "key": "oauth_client_id"
+                                            }
+                                        }
                                     },
                                     {
                                         "name": "OAUTH_CLIENT_SECRET",
-                                        "value": "${OAUTH_CLIENT_SECRET}"
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "valeria-jupyterhub-secrets",
+                                                "key": "oauth_client_secret"
+                                            }
+                                        }
                                     },
                                     {
                                         "name": "OAUTH2_TOKEN_URL",
