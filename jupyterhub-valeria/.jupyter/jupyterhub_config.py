@@ -94,6 +94,9 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
 
         # Login to Vault with JWT 
         vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
+        import json
+        import sys
+        sys.stdout.write(json.dumps(vault_response_login))
 
         # Retrieve user entity id and token
         vault_token = vault_response_login['auth']['client_token']
