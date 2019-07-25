@@ -172,7 +172,7 @@ if idle_timeout and int(idle_timeout):
     ]
 
 
-c.Spawner.singleuser_extra_containers = [
+c.KubeSpawner.singleuser_extra_containers = [
     {
       'name': 'lustre-sc',
       'image': 'centos7',
