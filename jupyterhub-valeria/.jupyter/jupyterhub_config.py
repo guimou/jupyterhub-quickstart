@@ -176,7 +176,7 @@ c.KubeSpawner.singleuser_extra_containers = [
     {
       'name': 'lustre-sc',
       'image': 'centos:centos7',
-      'imagePullPolicy': 'IfNotPresent'
+      'imagePullPolicy': 'IfNotPresent',
       'command': 'tail -f /dev/null'
     }
 ]
