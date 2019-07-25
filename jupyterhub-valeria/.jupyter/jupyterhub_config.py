@@ -175,7 +175,7 @@ if idle_timeout and int(idle_timeout):
 c.KubeSpawner.singleuser_extra_containers = [
     {
       'name': 'lustre-sc',
-      'image': 'centos7',
+      'image': 'centos:centos7',
       'imagePullPolicy': 'IfNotPresent'
     }
 ]
