@@ -176,6 +176,6 @@ c.Spawner.singleuser_extra_containers = [
     {
       'name': 'lustre-sc',
       'image': 'centos7',
-      'imagePullPolicy: 'IfNotPresent'
+      'imagePullPolicy': 'IfNotPresent'
     }
 ]
