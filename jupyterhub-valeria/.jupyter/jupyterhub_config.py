@@ -170,3 +170,12 @@ if idle_timeout and int(idle_timeout):
             'command': ['cull-idle-servers', '--timeout=%s' % idle_timeout],
         }
     ]
+
+
+config c.KubeSpawner.singleuser_extra_containers = [
+    {
+      name: lustre-sc,
+      image: centos,
+      imagePullPolicy: IfNotPresent
+    }
+]
