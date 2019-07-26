@@ -88,6 +88,8 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             # user has no auth state
             return
 
+        print(auth_state['access_token'])
+
         vault_url = os.environ['VAULT_URL']
         vault_login_url = vault_url + '/v1/auth/jwt/login'
         vault_login_json = {"role":None, "jwt": auth_state['access_token']}
