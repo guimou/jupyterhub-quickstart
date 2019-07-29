@@ -177,6 +177,6 @@ c.KubeSpawner.singleuser_extra_containers = [
       'name': 'lustre-sc',
       'image': 'centos:centos7',
       'imagePullPolicy': 'IfNotPresent',
-      'command': 'tail -f /dev/null'
+      'command': '[ "/bin/sh", "-c", "trap : TERM INT; (while true; do sleep 1000; done) & wait" ]'
     }
 ]
