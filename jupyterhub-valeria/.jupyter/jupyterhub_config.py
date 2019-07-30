@@ -172,10 +172,48 @@ if idle_timeout and int(idle_timeout):
     ]
 
 
+# Setup persistent storage on Lustre (home + scratch)
+c.KubeSpawner.volumes = [
+    {
+        'name': 'lustre-home',
+        'emptyDir': {}
+    }
+    {
+        'name': 'lustre-scratch',
+        'emptyDir': {}
+    }
+]
+
+c.KubeSpawner.volume_mounts = [
+    {
+        'name': 'lustre-home',
+        'mountPath': '/opt/app-root/lustre-home'
+    }
+    {
+        'name': 'lustre-scratch',
+        'mountPath': '/opt/app-root/lustre-scratch'
+    }
+]
+
+
 c.KubeSpawner.singleuser_extra_containers = [
     {
       'name': 'lustre-sc',
       'image': 'valeria-sidecar-lustre:07.30',
-      'imagePullPolicy': 'IfNotPresent'
+      'imagePullPolicy': 'IfNotPresent',
+      'securityContext': {'privileged': true},
+      "volumeMounts": [
+      {
+         "mountPath": "/lustre/home",
+         "name": "lustre-home",
+         "mountPropagation": "Bidirectional"
+      },
+      {
+         "mountPath": "/lustre/scratch",
+         "name": "lustre-scratch",
+         "mountPropagation": "Bidirectional"
+      }
+   ]
+
     }
 ]
