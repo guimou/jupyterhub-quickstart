@@ -90,7 +90,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
 
         vault_url = os.environ['VAULT_URL']
         vault_login_url = vault_url + '/v1/auth/jwt/login'
-        vault_login_json = {"role":None, "jwt": auth_state['access_token']}
+        vault_login_json = {'role':None, 'jwt': auth_state['access_token']}
 
         # Login to Vault with JWT 
         vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
@@ -118,8 +118,8 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     warnings.warn(
-        "Need JUPYTERHUB_CRYPT_KEY env for persistent auth_state.\n"
-        "    export JUPYTERHUB_CRYPT_KEY=$(openssl rand -hex 32)"
+        'Need JUPYTERHUB_CRYPT_KEY env for persistent auth_state.\n'
+        '    export JUPYTERHUB_CRYPT_KEY=$(openssl rand -hex 32)'
     )
     c.CryptKeeper.keys = [ os.urandom(32) ]
 
@@ -130,12 +130,12 @@ keycloak_realm = os.environ.get('KEYCLOAK_REALM')
 keycloak_account_url = 'https://%s/auth/realms/%s/account' % (keycloak_hostname, keycloak_realm)
 
 with open('templates/vars.html', 'w') as fp:
-    fp.write('{%% set keycloak_account_url = "%s" %%}' % keycloak_account_url)
+    fp.write('{%% set keycloak_account_url = '%s' %%}' % keycloak_account_url)
 
 c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
 # following line: workaround to make OAuth work, reference: https://github.com/jupyterhub/oauthenticator/issues/271
 c.JupyterHub.authenticator_class.login_handler._OAUTH_AUTHORIZE_URL = 'https://%s/auth/realms/%s/protocol/openid-connect/auth' % (keycloak_hostname, keycloak_realm)
-c.GenericOAuthenticator.login_service = "KeyCloak"
+c.GenericOAuthenticator.login_service = 'KeyCloak'
 c.GenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % jupyterhub_hostname
 c.GenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
 c.GenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
@@ -201,17 +201,17 @@ c.KubeSpawner.singleuser_extra_containers = [
       'name': 'lustre-sc',
       'image': 'valeria-sidecar-lustre:07.30',
       'imagePullPolicy': 'IfNotPresent',
-      'securityContext': {'privileged': true},
-      "volumeMounts": [
+      'securityContext': {'privileged': 'true'},
+      'volumeMounts': [
       {
-         "mountPath": "/lustre/home",
-         "name": "lustre-home",
-         "mountPropagation": "Bidirectional"
+         'mountPath': '/lustre/home',
+         'name': 'lustre-home',
+         'mountPropagation': 'Bidirectional'
       },
       {
-         "mountPath": "/lustre/scratch",
-         "name": "lustre-scratch",
-         "mountPropagation": "Bidirectional"
+         'mountPath': '/lustre/scratch',
+         'name': 'lustre-scratch',
+         'mountPropagation': 'Bidirectional'
       }
       ]
     }
