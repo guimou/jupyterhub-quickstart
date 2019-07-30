@@ -130,7 +130,7 @@ keycloak_realm = os.environ.get('KEYCLOAK_REALM')
 keycloak_account_url = 'https://%s/auth/realms/%s/account' % (keycloak_hostname, keycloak_realm)
 
 with open('templates/vars.html', 'w') as fp:
-    fp.write('{%% set keycloak_account_url = '%s' %%}' % keycloak_account_url)
+    fp.write('{%% set keycloak_account_url = "%s" %%}' % keycloak_account_url)
 
 c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
 # following line: workaround to make OAuth work, reference: https://github.com/jupyterhub/oauthenticator/issues/271
@@ -201,7 +201,7 @@ c.KubeSpawner.singleuser_extra_containers = [
       'name': 'lustre-sc',
       'image': 'valeria-sidecar-lustre:07.30',
       'imagePullPolicy': 'IfNotPresent',
-      'securityContext': {'privileged': 'true'},
+      'securityContext': {'privileged': True},
       'volumeMounts': [
       {
          'mountPath': '/lustre/home',
