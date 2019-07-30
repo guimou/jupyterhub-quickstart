@@ -175,8 +175,7 @@ if idle_timeout and int(idle_timeout):
 c.KubeSpawner.singleuser_extra_containers = [
     {
       'name': 'lustre-sc',
-      'image': 'centos:centos7',
-      'imagePullPolicy': 'IfNotPresent',
-      'command': '[ "/bin/sh", "-c", "trap : TERM INT; (while true; do sleep 1000; done) & wait" ]'
+      'image': 'valeria-sidecar-lustre:07.30',
+      'imagePullPolicy': 'IfNotPresent'
     }
 ]
