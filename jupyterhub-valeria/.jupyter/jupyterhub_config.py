@@ -177,7 +177,7 @@ c.KubeSpawner.volumes = [
     {
         'name': 'lustre-home',
         'emptyDir': {}
-    }
+    },
     {
         'name': 'lustre-scratch',
         'emptyDir': {}
@@ -188,7 +188,7 @@ c.KubeSpawner.volume_mounts = [
     {
         'name': 'lustre-home',
         'mountPath': '/opt/app-root/lustre-home'
-    }
+    },
     {
         'name': 'lustre-scratch',
         'mountPath': '/opt/app-root/lustre-scratch'
@@ -213,7 +213,6 @@ c.KubeSpawner.singleuser_extra_containers = [
          "name": "lustre-scratch",
          "mountPropagation": "Bidirectional"
       }
-   ]
-
+      ]
     }
 ]
