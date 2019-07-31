@@ -173,6 +173,8 @@ if idle_timeout and int(idle_timeout):
 
 
 # Setup persistent storage on Lustre (home + scratch)
+c.KubeSpawner.service_account='lustre-sc'
+
 c.KubeSpawner.volumes = [
     {
         'name': 'lustre-home',
@@ -201,6 +203,7 @@ c.KubeSpawner.singleuser_extra_containers = [
       'name': 'lustre-sc',
       'image': 'valeria-sidecar-lustre:07.30',
       'imagePullPolicy': 'IfNotPresent',
+      'securityContext': {'privileged': True},
       'volumeMounts': [
       {
          'mountPath': '/lustre/home',
