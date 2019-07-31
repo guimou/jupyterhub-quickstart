@@ -207,7 +207,7 @@ c.KubeSpawner.singleuser_extra_containers = [
       'securityContext': {
           'privileged': True,
           'runAsUser': 0
-          },
+        },
       'volumeMounts': [
         {
             'mountPath': '/lustre/home',
@@ -218,6 +218,18 @@ c.KubeSpawner.singleuser_extra_containers = [
             'mountPath': '/lustre/scratch',
             'name': 'lustre-scratch',
             'mountPropagation': 'Bidirectional'
-        }]
+        }],
+      'lifecycle': {
+            'postStart': {
+              'exec': {
+                'command': ['/bin/sh','-c','mount -t lustre 10.250.111.190@tcp0:/lustrex /lustre/home && mount -t lustre 10.250.111.190@tcp0:/lustrex /lustre/scratch']
+              }
+            },
+            'preStop': {
+              'exec': {
+                'command': ['/bin/sh','-c','umount /lustre/home && umount /lustre/scratch']
+              }
+            }
+        }
     }
 ]
