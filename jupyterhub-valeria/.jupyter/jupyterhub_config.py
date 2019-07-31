@@ -174,6 +174,7 @@ if idle_timeout and int(idle_timeout):
 
 # Setup persistent storage on Lustre (home + scratch)
 c.KubeSpawner.service_account='lustre-sc'
+c.KubeSpawner.uid='1888805716'
 
 c.KubeSpawner.volumes = [
     {
@@ -214,7 +215,21 @@ c.KubeSpawner.singleuser_extra_containers = [
          'mountPath': '/lustre/scratch',
          'name': 'lustre-scratch',
          'mountPropagation': 'Bidirectional'
-      }
+      },
+      {
+        'lifecycle': {
+            'postStart': {
+              'exec': {
+                'command': ['/bin/sh','-c','mount -t lustre 10.250.111.190@tcp0:/lustrex /lustre/home && mount -t lustre 10.250.111.190@tcp0:/lustrex /lustre/scratch']
+              }
+            },
+            'preStop': {
+              'exec': {
+                'command': ['/bin/sh','-c','umount /lustre/home && umount /lustre/scratch']
+              }
+            }
+        }
+        }
       ]
     }
 ]
