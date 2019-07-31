@@ -204,7 +204,10 @@ c.KubeSpawner.singleuser_extra_containers = [
       'name': 'lustre-sc',
       'image': 'valeria-sidecar-lustre:07.30',
       'imagePullPolicy': 'IfNotPresent',
-      'securityContext': {'privileged': True},
+      'securityContext': {
+          'privileged': True,
+          'runAsUser': 0
+          },
       'volumeMounts': [
         {
             'mountPath': '/lustre/home',
