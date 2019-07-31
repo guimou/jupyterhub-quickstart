@@ -190,11 +190,11 @@ c.KubeSpawner.volumes = [
 c.KubeSpawner.volume_mounts = [
     {
         'name': 'lustre-home',
-        'mountPath': '/opt/app-root/lustre-home'
+        'mountPath': '/lustre/home'
     },
     {
         'name': 'lustre-scratch',
-        'mountPath': '/opt/app-root/lustre-scratch'
+        'mountPath': '/lustre/scratch'
     }
 ]
 
