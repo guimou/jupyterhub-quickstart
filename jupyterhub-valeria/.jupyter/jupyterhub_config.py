@@ -204,6 +204,7 @@ c.KubeSpawner.singleuser_extra_containers = [
       'name': 'lustre-sc',
       'image': 'valeria-sidecar-lustre:07.30',
       'imagePullPolicy': 'IfNotPresent',
+      'command': ['/bin/sh','-c','trap : TERM INT; (while true; do sleep 1000; done) & wait'],
       'securityContext': {
           'privileged': True,
           'runAsUser': 0
