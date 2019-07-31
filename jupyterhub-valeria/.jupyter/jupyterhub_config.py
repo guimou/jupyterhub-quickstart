@@ -206,18 +206,17 @@ c.KubeSpawner.singleuser_extra_containers = [
       'imagePullPolicy': 'IfNotPresent',
       'securityContext': {'privileged': True},
       'volumeMounts': [
-      {
-         'mountPath': '/lustre/home',
-         'name': 'lustre-home',
-         'mountPropagation': 'Bidirectional'
-      },
-      {
-         'mountPath': '/lustre/scratch',
-         'name': 'lustre-scratch',
-         'mountPropagation': 'Bidirectional'
-      },
-      {
-        'lifecycle': {
+        {
+            'mountPath': '/lustre/home',
+            'name': 'lustre-home',
+            'mountPropagation': 'Bidirectional'
+        },
+        {
+            'mountPath': '/lustre/scratch',
+            'name': 'lustre-scratch',
+            'mountPropagation': 'Bidirectional'
+        }],
+      'lifecycle': {
             'postStart': {
               'exec': {
                 'command': ['/bin/sh','-c','mount -t lustre 10.250.111.190@tcp0:/lustrex /lustre/home && mount -t lustre 10.250.111.190@tcp0:/lustrex /lustre/scratch']
@@ -229,7 +228,5 @@ c.KubeSpawner.singleuser_extra_containers = [
               }
             }
         }
-        }
-      ]
     }
 ]
