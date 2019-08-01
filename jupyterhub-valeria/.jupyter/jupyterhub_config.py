@@ -174,7 +174,7 @@ if idle_timeout and int(idle_timeout):
 
 # Setup persistent storage on Lustre (home + scratch)
 c.KubeSpawner.service_account='notebook'
-c.KubeSpawner.uid=1888805716
+c.KubeSpawner.uid=1000270001
 
 c.KubeSpawner.volumes = [
     {
