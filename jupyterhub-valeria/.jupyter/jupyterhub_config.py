@@ -173,17 +173,17 @@ if idle_timeout and int(idle_timeout):
 
 
 # Setup persistent storage on Lustre (home + scratch)
-c.KubeSpawner.service_account='lustre-sc'
+c.KubeSpawner.service_account='notebook'
 c.KubeSpawner.uid=1888805716
 
 c.KubeSpawner.volumes = [
     {
         'name': 'lustre-home',
-        'emptyDir': {}
+        'hostPath': {'path': '/lustre'}
     },
     {
         'name': 'lustre-scratch',
-        'emptyDir': {}
+        'hostPath': {'path': '/lustre'}
     }
 ]
 
@@ -195,42 +195,5 @@ c.KubeSpawner.volume_mounts = [
     {
         'name': 'lustre-scratch',
         'mountPath': '/lustre/scratch'
-    }
-]
-
-
-c.KubeSpawner.singleuser_extra_containers = [
-    {
-      'name': 'lustre-sc',
-      'image': 'valeria-sidecar-lustre:07.30',
-      'imagePullPolicy': 'IfNotPresent',
-      'command': ['/bin/sh','-c','trap : TERM INT; (while true; do sleep 1000; done) & wait'],
-      'securityContext': {
-          'privileged': True,
-          'runAsUser': 0
-        },
-      'volumeMounts': [
-        {
-            'mountPath': '/lustre/home',
-            'name': 'lustre-home',
-            'mountPropagation': 'Bidirectional'
-        },
-        {
-            'mountPath': '/lustre/scratch',
-            'name': 'lustre-scratch',
-            'mountPropagation': 'Bidirectional'
-        }],
-      'lifecycle': {
-            'postStart': {
-              'exec': {
-                'command': ['/bin/sh','-c','mount -t lustre 10.250.111.190@tcp0:/lustrex /lustre/home && mount -t lustre 10.250.111.190@tcp0:/lustrex /lustre/scratch']
-              }
-            },
-            'preStop': {
-              'exec': {
-                'command': ['/bin/sh','-c','umount /lustre/home && umount /lustre/scratch']
-              }
-            }
-        }
     }
 ]
