@@ -125,9 +125,6 @@ if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     )
     c.CryptKeeper.keys = [ os.urandom(32) ]
 
-# Force refresh of tokens before spawning
-c.Authenticator.refresh_pre_spawn = True
-
 # Configure KeyCloak as authentication provider.
 keycloak_hostname = os.environ.get('KEYCLOAK_HOSTNAME')
 keycloak_realm = os.environ.get('KEYCLOAK_REALM')
@@ -146,6 +143,8 @@ c.GenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 c.GenericOAuthenticator.tls_verify = False
 # enable authentication state
 c.GenericOAuthenticator.enable_auth_state = True
+# Force refresh of tokens before spawning
+c.GenericOAuthenticator.refresh_pre_spawn = True
 
 
 # Populate admin users and use white list from config maps.
