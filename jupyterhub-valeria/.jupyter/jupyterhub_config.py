@@ -136,7 +136,7 @@ with open('templates/vars.html', 'w') as fp:
 
 c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
 # following line: workaround to make OAuth work, reference: https://github.com/jupyterhub/oauthenticator/issues/271
-c.JupyterHub.authenticator_class.login_handler._OAUTH_AUTHORIZE_URL = 'https://%s/auth/realms/%s/protocol/openid-connect/auth' % (keycloak_hostname, keycloak_realm)
+# c.JupyterHub.authenticator_class.login_handler._OAUTH_AUTHORIZE_URL = 'https://%s/auth/realms/%s/protocol/openid-connect/auth' % (keycloak_hostname, keycloak_realm)
 c.GenericOAuthenticator.login_service = "KeyCloak"
 c.GenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % jupyterhub_hostname
 c.GenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
