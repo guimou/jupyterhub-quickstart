@@ -125,6 +125,8 @@ if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     )
     c.CryptKeeper.keys = [ os.urandom(32) ]
 
+# Force refresh of tokens before spawning
+c.Authenticator.refresh_pre_spawn = True
 
 # Configure KeyCloak as authentication provider.
 keycloak_hostname = os.environ.get('KEYCLOAK_HOSTNAME')
@@ -161,9 +163,7 @@ if os.path.exists('/opt/app-root/configs/user_whitelist.txt'):
 
 
 # Setup culling of idle notebooks if timeout parameter is supplied.
-
 idle_timeout = os.environ.get('JUPYTERHUB_IDLE_TIMEOUT')
-
 if idle_timeout and int(idle_timeout):
     c.JupyterHub.services = [
         {
@@ -172,3 +172,7 @@ if idle_timeout and int(idle_timeout):
             'command': ['cull-idle-servers', '--timeout=%s' % idle_timeout],
         }
     ]
+
+# Allow shutdown of Hub while leaving Notebooks running, allowing for non-disruptive updates. The Hub should be able to resume from database state.
+c.JupyterHub.cleanup_servers = False
+
