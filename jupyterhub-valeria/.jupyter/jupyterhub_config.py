@@ -118,6 +118,15 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         s3_endpoint_url = os.environ.get('S3_ENDPOINT_URL')
         spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
 
+    @gen.coroutine
+    def post_spawn_stop(self, user, spawner):
+        # Retrieve user authentication info
+        auth_state = yield user.get_auth_state()
+        if not auth_state:
+            # user has no auth state
+            return
+        user.save_auth_state(None)
+
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     warnings.warn(
         "Need JUPYTERHUB_CRYPT_KEY env for persistent auth_state.\n"
