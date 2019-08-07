@@ -163,6 +163,7 @@ c.GenericOAuthenticator.enable_auth_state = True
 c.GenericOAuthenticator.refresh_pre_spawn = True
 
 # Setup persistent storage on NFS
+c.KubeSpawner.service_account = 'notebook'
 c.KubeSpawner.uid=1888805716
 c.KubeSpawner.volumes = [
     {
