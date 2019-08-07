@@ -161,6 +161,25 @@ c.GenericOAuthenticator.enable_auth_state = True
 # Force refresh of tokens before spawning
 c.GenericOAuthenticator.refresh_pre_spawn = True
 
+# Setup persistent storage on NFS
+c.KubeSpawner.uid=1888805716
+c.KubeSpawner.volumes = [
+    {
+        'name': 'home',
+        'nfs': {
+            'server': '10.250.111.190',
+            'path': '/mnt/nfsexport'
+        }
+    }
+]
+c.KubeSpawner.volume_mounts = [
+    {
+        'name': 'home',
+        'mountPath': '/opt/app-root/users'
+    }
+]
+c.KubeSpawner.notebook_dir = '/opt/app-root/users/1888805716'
+
 
 # Populate admin users and use white list from config maps.
 if os.path.exists('/opt/app-root/configs/admin_users.txt'):
@@ -189,4 +208,5 @@ if idle_timeout and int(idle_timeout):
 
 # Allow shutdown of Hub while leaving Notebooks running, allowing for non-disruptive updates. The Hub should be able to resume from database state.
 c.JupyterHub.cleanup_servers = False
+
 
