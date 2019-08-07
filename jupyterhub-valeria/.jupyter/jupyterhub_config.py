@@ -8,7 +8,8 @@ class ULKubeSpawner(KubeSpawner):
     def _options_form_default(self):
         with open('/opt/app-root/src/templates/select.html') as file_:
             template = Template(file_.read())
-        image_list = ['s2i-minimal-notebook-s3:3.6', 
+        image_list = ['s2i-minimal-notebook-s3:3.6',
+                      's2i-minimal-notebook-s3:nfs',
                       's2i-scipy-notebook-s3:3.6', 
                       's2i-tensorflow-notebook-s3:3.6',
                       's2i-tensorflow-exp-s3:3.6',
