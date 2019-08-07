@@ -125,6 +125,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         if not auth_state:
             # user has no auth state
             return
+        # Clear auth_state
         user.save_auth_state(None)
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
