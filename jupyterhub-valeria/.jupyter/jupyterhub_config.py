@@ -130,6 +130,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         # Retrieve user authentication info
         auth_state = yield user.get_auth_state()
         print(auth_state)
+        return True
         
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
