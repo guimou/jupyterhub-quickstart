@@ -40,7 +40,7 @@ c.JupyterHub.spawner_class = ULKubeSpawner
 c.Spawner.environment = {}
 
 # Keep Spark vars in notebooks
-c.Spawner.env_keep = ['PYSPARK_SUBMIT_ARGS', 'PYSPARK_DRIVER_PYTHON', 'PYSPARK_DRIVER_PYTHON_OPTS', 'SPARK_HOME', 'SPARK_CLUSTER', 'PYTHONPATH']
+c.Spawner.env_keep = ['PYSPARK_PYTHON','PYSPARK_SUBMIT_ARGS', 'PYSPARK_DRIVER_PYTHON', 'PYSPARK_DRIVER_PYTHON_OPTS', 'SPARK_HOME', 'SPARK_CLUSTER', 'PYTHONPATH']
 
 
 # Enable JupyterLab interface if enabled.  TODO: Replace by result from form
