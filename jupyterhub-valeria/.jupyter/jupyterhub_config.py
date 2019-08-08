@@ -125,7 +125,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
 
     @gen.coroutine
-    async def refresh_user(self, user, handler=None):
+    def refresh_user(self, user, handler=None):
         print('Entering refresh')
         # Retrieve user authentication info
         auth_state = yield user.get_auth_state()
