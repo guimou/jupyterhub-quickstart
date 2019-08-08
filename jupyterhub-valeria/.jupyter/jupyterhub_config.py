@@ -164,7 +164,6 @@ c.GenericOAuthenticator.enable_auth_state = True
 c.GenericOAuthenticator.refresh_pre_spawn = True
 
 # Setup persistent storage on NFS
-c.KubeSpawner.service_account = 'notebook'
 c.KubeSpawner.uid=1888805716
 c.KubeSpawner.volumes = [
     {
@@ -214,5 +213,7 @@ if idle_timeout and int(idle_timeout):
 
 # Allow shutdown of Hub while leaving Notebooks running, allowing for non-disruptive updates. The Hub should be able to resume from database state.
 c.JupyterHub.cleanup_servers = False
+
+c.KubeSpawner.service_account = 'notebook'
 
 
