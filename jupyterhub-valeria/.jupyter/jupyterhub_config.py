@@ -79,6 +79,7 @@ from tornado import gen
 class EnvGenericOAuthenticator(GenericOAuthenticator):
     @gen.coroutine
     def pre_spawn_start(self, user, spawner):
+        print('Entering pre_spawn')
         import hvac
         import json
         import requests
@@ -88,8 +89,6 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         if not auth_state:
             # user has no auth state
             return
-
-        print(auth_state)
 
         vault_url = os.environ['VAULT_URL']
         vault_login_url = vault_url + '/v1/auth/jwt/login'
@@ -126,14 +125,12 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
 
     @gen.coroutine
-    def post_spawn_stop(self, user, spawner):
+    async def refresh_user(self, user, handler=None):
+        print('Entering refresh')
         # Retrieve user authentication info
         auth_state = yield user.get_auth_state()
-        if not auth_state:
-            # user has no auth state
-            return
-        # Clear auth_state
-        user.save_auth_state(None)
+        print(auth_state)
+        
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
     warnings.warn(
