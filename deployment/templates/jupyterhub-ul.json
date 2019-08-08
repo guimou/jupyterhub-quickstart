@@ -106,7 +106,12 @@
             "name": "S3_BUCKET",
             "value": "jupyter-bucket",
             "required": true
-        }
+        },
+	{
+	    "name": "PYSPARK_PYTHON",
+	    "value": "/bin/python3.6",
+	    "required": true
+	}
     ],
     "objects": [
         {
@@ -376,7 +381,11 @@
                                     {
                                         "name": "VAULT_URL",
                                         "value": "${VAULT_URL}"
-                                    }
+                                    },
+				    {
+					"name": "PYSPARK_PYTHON",
+					"value": "${PYSPARK_PYTHON}"
+				    }
                                 ],
                                 "volumeMounts": [
                                     {
