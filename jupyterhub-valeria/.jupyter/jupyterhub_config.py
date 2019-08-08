@@ -181,8 +181,10 @@ c.KubeSpawner.volume_mounts = [
         'mountPath': '/users'
     }
 ]
+
+# Start Notebook in user directory
 c.KubeSpawner.notebook_dir = '/users'
-c.KubeSpawner.default_url = '/tree/users/1888805716'
+c.KubeSpawner.default_url = '/tree/user_1888805716'
 
 
 # Populate admin users and use white list from config maps.
