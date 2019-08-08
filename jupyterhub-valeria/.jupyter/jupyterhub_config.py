@@ -128,7 +128,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
     def refresh_user(self, user, handler=None):
         print('Entering refresh')
         # Retrieve user authentication info
-        auth_state = yield user.get_auth_state()
+        auth_state = yield user.get_auth_state(['access_token'])
         print(auth_state)
         return True
         
