@@ -126,10 +126,13 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
 
     @gen.coroutine
     def refresh_user(self, user, handler=None):
+        import jwt
         print('Entering refresh')
         # Retrieve user authentication info
-        auth_state = yield user.get_auth_state(['access_token'])
-        print(auth_state)
+        auth_state = yield user.get_auth_state()
+        # print(auth_state['access_token'])
+        decoded = jwt.decode(auth_state['access_token'], verify=False)
+        print(decoded)
         return True
         
 
