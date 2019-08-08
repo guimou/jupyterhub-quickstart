@@ -8,4 +8,4 @@ PATH=$PATH:/opt/app-root/scripts
 
 # Start the JupyterHub instance.
 
-exec jupyterhub -f /opt/app-root/etc/jupyterhub_config.py --debug
+exec jupyterhub -f /opt/app-root/etc/jupyterhub_config.py
