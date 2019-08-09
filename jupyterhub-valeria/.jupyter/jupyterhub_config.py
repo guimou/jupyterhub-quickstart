@@ -173,8 +173,8 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                 'auth_state': {
                     'access_token': access_token,
                     'refresh_token': refresh_token
-                }     
-        
+                }
+            }
         print(str(refresh_user_return))
         return refresh_user_return
         
