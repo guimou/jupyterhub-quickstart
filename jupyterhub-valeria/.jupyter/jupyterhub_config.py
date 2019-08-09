@@ -147,7 +147,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                 grant_type = 'refresh_token',
                 client_id = os.environ.get('OAUTH_CLIENT_ID'),
                 client_secret = os.environ.get('OAUTH_CLIENT_SECRET'),
-                refresh_token = 
+                refresh_token = refresh_token
             )
             
             headers = {
