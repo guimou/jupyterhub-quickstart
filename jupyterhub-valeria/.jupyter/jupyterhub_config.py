@@ -131,15 +131,51 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         print('Entering refresh')
         # Retrieve user authentication info
         auth_state = yield user.get_auth_state()
-        # print(auth_state['access_token'])
+        print(auth_state['access_token'])
         decoded = jwt.decode(auth_state['access_token'], verify=False)
         diff=decoded['exp']-time.time()
+        print(diff)
         if diff>0:
-            need_to_relogin = False
+            # Access token still valid
+            refresh_user_return = True
         else:
-            need_to_relogin = True
-        print('Need to relogin: %s' % need_to_relogin)
-        return need_to_relogin
+            # We need to refresh access token
+            refresh_token = auth_state['refresh_token']
+            http_client = AsyncHTTPClient()
+            
+            params = dict(
+                grant_type = 'refresh_token',
+                client_id = os.environ.get('OAUTH_CLIENT_ID'),
+                client_secret = os.environ.get('OAUTH_CLIENT_SECRET'),
+                refresh_token = 
+            )
+            
+            headers = {
+            "Content-Type": "application/x-www-form-urlencoded"
+            }
+            
+            req = HTTPRequest(url,
+                          method="POST",
+                          headers=headers,
+                          validate_cert=self.tls_verify,
+                          body=urllib.parse.urlencode(params)  # Body is required for a POST...
+                          )
+
+            resp = await http_client.fetch(req)
+
+            resp_json = json.loads(resp.body.decode('utf8', 'replace'))
+
+            access_token = resp_json['access_token']
+            refresh_token = resp_json.get('refresh_token', None)
+            
+            refresh_user_return = {
+                'auth_state': {
+                    'access_token': access_token,
+                    'refresh_token': refresh_token
+                }     
+        
+        print(refresh_user_return)
+        return refresh_user_return
         
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
