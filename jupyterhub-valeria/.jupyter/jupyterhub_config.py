@@ -127,13 +127,18 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
     @gen.coroutine
     def refresh_user(self, user, handler=None):
         import jwt
+        import time
         print('Entering refresh')
         # Retrieve user authentication info
         auth_state = yield user.get_auth_state()
         # print(auth_state['access_token'])
         decoded = jwt.decode(auth_state['access_token'], verify=False)
-        print(decoded)
-        return False
+        diff=decoded['exp']-time.time()
+        if diff>0:
+            need_to_relogin = False
+        else:
+            need_to_relogin = True
+        return need_to_relogin
         
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
