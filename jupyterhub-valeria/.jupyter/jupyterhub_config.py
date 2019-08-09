@@ -168,11 +168,16 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
 
             access_token = resp_json['access_token']
             refresh_token = resp_json.get('refresh_token', None)
+            scope = resp_json.get('scope', '')
+            if (isinstance(scope, str)):
+                scope = scope.split(' ')
             
             refresh_user_return = {
+                'name': resp_json.get(self.username_key),
                 'auth_state': {
                     'access_token': access_token,
-                    'refresh_token': refresh_token
+                    'refresh_token': refresh_token,
+                    'scope': scope
                 }
             }
         print(str(refresh_user_return))
