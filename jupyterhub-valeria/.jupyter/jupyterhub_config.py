@@ -138,7 +138,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             need_to_relogin = False
         else:
             need_to_relogin = True
-        print('Need to relogin: ' + need_to_relogin)
+        print('Need to relogin: %s' % need_to_relogin)
         return need_to_relogin
         
 
