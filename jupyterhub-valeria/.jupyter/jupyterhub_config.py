@@ -133,7 +133,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         # print(auth_state['access_token'])
         decoded = jwt.decode(auth_state['access_token'], verify=False)
         print(decoded)
-        return True
+        return False
         
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
