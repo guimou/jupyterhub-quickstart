@@ -142,7 +142,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             # We need to refresh access token
             refresh_token = auth_state['refresh_token']
             http_client = AsyncHTTPClient()
-            
+            url = os.environ.get('OAUTH2_TOKEN_URL')
             params = dict(
                 grant_type = 'refresh_token',
                 client_id = os.environ.get('OAUTH_CLIENT_ID'),
