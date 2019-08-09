@@ -175,7 +175,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                     'refresh_token': refresh_token
                 }     
         
-        print(refresh_user_return)
+        print(str(refresh_user_return))
         return refresh_user_return
         
 
