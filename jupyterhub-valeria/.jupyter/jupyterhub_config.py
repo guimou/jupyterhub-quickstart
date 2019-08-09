@@ -128,6 +128,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
     def refresh_user(self, user, handler=None):
         import jwt
         import time
+        from tornado.httpclient import HTTPRequest, HTTPClient
         print('Entering refresh')
         # Retrieve user authentication info
         auth_state = yield user.get_auth_state()
@@ -141,7 +142,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         else:
             # We need to refresh access token
             refresh_token = auth_state['refresh_token']
-            http_client = AsyncHTTPClient()
+            http_client = HTTPClient()
             url = os.environ.get('OAUTH2_TOKEN_URL')
             params = dict(
                 grant_type = 'refresh_token',
@@ -161,7 +162,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                           body=urllib.parse.urlencode(params)  # Body is required for a POST...
                           )
 
-            resp = await http_client.fetch(req)
+            resp = http_client.fetch(req)
 
             resp_json = json.loads(resp.body.decode('utf8', 'replace'))
 
