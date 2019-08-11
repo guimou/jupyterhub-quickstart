@@ -3,19 +3,16 @@ import warnings
 from jinja2 import Template
 from kubespawner import KubeSpawner
 
+
 # Custom class to personalize templates
 class ULKubeSpawner(KubeSpawner):
     def _options_form_default(self):
         with open('/opt/app-root/src/templates/select.html') as file_:
             template = Template(file_.read())
-        image_list = {'Minimal Python Notebook':'s2i-minimal-notebook-s3:3.6',
-                      'Minimal Python Notebook (Dev)':'s2i-minimal-notebook-s3:nfs',
-                      'SciPy Notebook':'s2i-scipy-notebook-s3:3.6', 
-                      'Tensorflow Notebook':'s2i-tensorflow-notebook-s3:3.6',
-                      'Tendorflow Notebook (experimental)':'s2i-tensorflow-exp-s3:3.6',
-                      'Spark Notebook':'s2i-spark-notebook-s3:3.6',
-                      'R Notebook':'s2i-r-notebook-s3:3.6',
-                      'Minimal R Notebook':'s2i-r-minimal-notebook-s3:3.6'}
+        with open('/opt/app-root/configs/image_list.txt') as fp:
+            content = fp.read().strip()
+            if content:
+                image_list = content
         return template.render(image_list=image_list)
 
     def options_from_form(self, formdata):

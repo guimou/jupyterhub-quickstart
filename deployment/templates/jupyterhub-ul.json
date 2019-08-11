@@ -58,6 +58,11 @@
             "required": false
         },
         {
+            "name": "JUPYTERHUB_IMAGE_LIST",
+            "value": "",
+            "required": false
+        },
+        {
             "name": "JUPYTERHUB_ADMIN_USERS",
             "value": "",
             "required": false
@@ -130,7 +135,8 @@
             },
             "data": {
                 "jupyterhub_config.py": "${JUPYTERHUB_CONFIG}",
-                "admin_users.txt": "${JUPYTERHUB_ADMIN_USERS}"
+                "admin_users.txt": "${JUPYTERHUB_ADMIN_USERS}",
+                "image_list.txt": "${JUPYTERHUB_IMAGE_LIST}"
             }
         },
         {
