@@ -49,8 +49,8 @@
             <td><label for="image_spec">Image</label></td>
             <td>
                 <select name="image_spec">
-                    {% for image in image_list %}
-                        <option value="{{image}}">{{image}}</option>
+                    {% for name,image in image_list.items() %}
+                        <option value="{{image}}">{{name}}</option>
                     {% endfor %}
                 </select>
             </td>
