@@ -77,15 +77,14 @@ from tornado import gen
 
 class EnvGenericOAuthenticator(GenericOAuthenticator):
     # Before spawning the notebook, we retrieve some information from Vault
-    @gen.coroutine
-    def pre_spawn_start(self, user, spawner):
-        print('Entering pre_spawn')
+    async def pre_spawn_start(self, user, spawner):
+        print('Entering pre_spawn') #TODO remove
         import hvac
         import json
         import requests
 
         # Retrieve user authentication info from JH
-        auth_state = yield user.get_auth_state()
+        auth_state = await user.get_auth_state()
         if not auth_state:
             # user has no auth state
             return
@@ -125,7 +124,6 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
     
     # Refresh user access and refresh tokens (called periodically)
-    @gen.coroutine
     async def refresh_user(self, user, handler=None):
         import jwt
         import time
