@@ -126,10 +126,10 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
     
     # Refresh user access and refresh tokens (called periodically)
     @gen.coroutine
-    def refresh_user(self, user, handler=None):
+    async def refresh_user(self, user, handler=None):
         import jwt
         import time
-        from tornado.httpclient import HTTPRequest, HTTPClient
+        from tornado.httpclient import HTTPRequest, AsyncHTTPClient
         print('Entering refresh') #TODO remove
         # Retrieve user authentication info, decode, and check if refresh is needed
         auth_state = yield user.get_auth_state()
@@ -143,7 +143,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         else:
             # We need to refresh access token (which will also refresh the refresh token)
             refresh_token = auth_state['refresh_token']
-            http_client = HTTPClient()
+            http_client = AsyncHTTPClient()
             url = os.environ.get('OAUTH2_TOKEN_URL')
             params = dict(
                 grant_type = 'refresh_token',
@@ -163,7 +163,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                           body=urllib.parse.urlencode(params)  # Body is required for a POST...
                           )
 
-            resp = http_client.fetch(req)
+            resp = await http_client.fetch(req)
 
             resp_json = json.loads(resp.body.decode('utf8', 'replace'))
 
@@ -193,7 +193,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                             headers=headers,
                             validate_cert=self.tls_verify,
                             )
-            resp = http_client.fetch(req)
+            resp = await http_client.fetch(req)
             resp_json = json.loads(resp.body.decode('utf8', 'replace'))
 
             if not resp_json.get(self.username_key):
