@@ -210,7 +210,8 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                 }
             }
         print(str(refresh_user_return))
-        return refresh_user_return
+        yield refresh_user_return
+        return
         
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
