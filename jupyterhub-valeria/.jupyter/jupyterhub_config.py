@@ -130,7 +130,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         from tornado.httpclient import HTTPRequest, AsyncHTTPClient
         print('Entering refresh') #TODO remove
         # Retrieve user authentication info, decode, and check if refresh is needed
-        auth_state = user.get_auth_state()
+        auth_state = await user.get_auth_state()
         print(auth_state['access_token']) #TODO remove
         decoded = jwt.decode(auth_state['access_token'], verify=False)
         diff=decoded['exp']-time.time()
