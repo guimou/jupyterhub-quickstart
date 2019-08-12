@@ -132,7 +132,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         from tornado.httpclient import HTTPRequest, AsyncHTTPClient
         print('Entering refresh') #TODO remove
         # Retrieve user authentication info, decode, and check if refresh is needed
-        auth_state = yield user.get_auth_state()
+        auth_state = user.get_auth_state()
         print(auth_state['access_token']) #TODO remove
         decoded = jwt.decode(auth_state['access_token'], verify=False)
         diff=decoded['exp']-time.time()
@@ -210,8 +210,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                 }
             }
         print(str(refresh_user_return))
-        yield refresh_user_return
-        return
+        return refresh_user_return
         
 
 if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
