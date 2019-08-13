@@ -107,18 +107,25 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                 )   
                 AWS_ACCESS_KEY_ID = secret_version_response['data']['data']['AWS_ACCESS_KEY_ID']
                 AWS_SECRET_ACCESS_KEY = secret_version_response['data']['data']['AWS_SECRET_ACCESS_KEY']
+                secret_version_response = vault_client.secrets.kv.v2.read_secret_version(
+                    mount_point='valeria',
+                    path='users/' + vault_entity_id + '/uid',
+                )
+                spawner.uid = secret_version_response['data']['data']['uid']
             else:
-                AWS_ACCESS_KEY_ID = 'none'
-                AWS_SECRET_ACCESS_KEY = 'none'
+                AWS_ACCESS_KEY_ID = None
+                AWS_SECRET_ACCESS_KEY = None
+                uid = None
 
         except:
             print('No Vault connection')
-            AWS_ACCESS_KEY_ID = 'none'
-            AWS_SECRET_ACCESS_KEY = 'none'
+            AWS_ACCESS_KEY_ID = None
+            AWS_SECRET_ACCESS_KEY = None
+            uid = None
 
         # Retrieve S3ContentManager infomation and update env var to pass to notebooks
         s3_endpoint_url = os.environ.get('S3_ENDPOINT_URL')
-        spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
+        spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY)
     
     # Refresh user access and refresh tokens (called periodically)
     async def refresh_user(self, user, handler=None):
@@ -127,6 +134,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         import urllib
         import json
         from tornado.httpclient import HTTPRequest, AsyncHTTPClient
+        from tornado.httputil import url_concat
         print('Entering refresh') #TODO remove
         # Retrieve user authentication info, decode, and check if refresh is needed
         auth_state = await user.get_auth_state()
@@ -237,7 +245,7 @@ c.GenericOAuthenticator.refresh_pre_spawn = True
 
 # Setup persistent storage on NFS
 c.KubeSpawner.service_account = 'notebook'
-c.KubeSpawner.uid=1888805716
+# c.KubeSpawner.uid=uid # TODO Remove
 c.KubeSpawner.volumes = [
     {
         'name': 'home',
@@ -256,7 +264,7 @@ c.KubeSpawner.volume_mounts = [
 
 # Start Notebook in user directory
 c.KubeSpawner.notebook_dir = '/users'
-c.KubeSpawner.default_url = '/tree/user_1888805716'
+c.KubeSpawner.default_url = '/tree/' + {username}
 
 
 # Populate admin users and use white list from config maps.
