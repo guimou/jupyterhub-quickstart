@@ -135,13 +135,21 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         import json
         from tornado.httpclient import HTTPRequest, AsyncHTTPClient
         from tornado.httputil import url_concat
+        print('Entering refresh')
         # Retrieve user authentication info, decode, and check if refresh is needed
         auth_state = await user.get_auth_state()
-        decoded = jwt.decode(auth_state['access_token'], verify=False)
-        diff=decoded['exp']-time.time()
-        if diff>0:
-            # Access token still valid, function returs True
+        access_token = jwt.decode(auth_state['access_token'], verify=False)
+        refresh_token = jwt.decode(auth_state['refresh_token'], verify=False)
+        diff_access=access_token['exp']-time.time()
+        diff_refresh=refresh_token['exp']-time.time()
+        print(diff_access)
+        print(diff_refresh)
+        if diff_access>0:
+            # Access token still valid, function returns True
             refresh_user_return = True
+        elif diff_refresh<0:
+            # Refresh token not valid, need to completely reauthenticate
+            refresh_user_return = False
         else:
             # We need to refresh access token (which will also refresh the refresh token)
             refresh_token = auth_state['refresh_token']
