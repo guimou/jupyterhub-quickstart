@@ -212,7 +212,6 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                     'scope': scope,
                 }
             }
-        print(str(refresh_user_return))
         return refresh_user_return
         
 
