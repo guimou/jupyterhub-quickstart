@@ -73,32 +73,32 @@ from oauthenticator.generic import GenericOAuthenticator
 from tornado import gen
 
 class EnvGenericOAuthenticator(GenericOAuthenticator):
-    @gen.coroutine
-    def pre_spawn_start(self, user, spawner):
-        print('Entering pre_spawn')
+    # Before spawning the notebook, we retrieve some information from Vault
+    async def pre_spawn_start(self, user, spawner):
+        print('Entering pre_spawn') #TODO remove
         import hvac
         import json
         import requests
 
-        # Retrieve user authentication info
-        auth_state = yield user.get_auth_state()
+        # Retrieve user authentication info from JH
+        auth_state = await user.get_auth_state()
         if not auth_state:
             # user has no auth state
             return
-
-        vault_url = os.environ['VAULT_URL']
-        vault_login_url = vault_url + '/v1/auth/jwt/login'
-        vault_login_json = {"role":None, "jwt": auth_state['access_token']}
-
-        # Login to Vault with JWT 
+        
+        # Retrieve information from Vault                
         try:
+            # Login to Vault with JWT 
+            vault_url = os.environ['VAULT_URL']
+            vault_login_url = vault_url + '/v1/auth/jwt/login'
+            vault_login_json = {"role":None, "jwt": auth_state['access_token']}
             vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
 
-            # Retrieve user entity id and token
+            # Retrieve user entity id and Vault access token
             vault_token = vault_response_login['auth']['client_token']
             vault_entity_id = vault_response_login['auth']['entity_id']
         
-            # Connect to Vault and retrieve info (finally!)
+            # Retrieve S3 credentials and user uid
             vault_client = hvac.Client(url=vault_url, token=vault_token)
             if vault_client.is_authenticated():
                 secret_version_response = vault_client.secrets.kv.v2.read_secret_version(
@@ -119,26 +119,28 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         # Retrieve S3ContentManager infomation and update env var to pass to notebooks
         s3_endpoint_url = os.environ.get('S3_ENDPOINT_URL')
         spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
-
-    @gen.coroutine
-    def refresh_user(self, user, handler=None):
+    
+    # Refresh user access and refresh tokens (called periodically)
+    async def refresh_user(self, user, handler=None):
         import jwt
         import time
-        from tornado.httpclient import HTTPRequest, HTTPClient
-        print('Entering refresh')
-        # Retrieve user authentication info
-        auth_state = yield user.get_auth_state()
-        print(auth_state['access_token'])
+        import urllib
+        import json
+        from tornado.httpclient import HTTPRequest, AsyncHTTPClient
+        print('Entering refresh') #TODO remove
+        # Retrieve user authentication info, decode, and check if refresh is needed
+        auth_state = await user.get_auth_state()
+        print(auth_state['access_token']) #TODO remove
         decoded = jwt.decode(auth_state['access_token'], verify=False)
         diff=decoded['exp']-time.time()
-        print(diff)
+        print(diff) #TODO remove
         if diff>0:
-            # Access token still valid
+            # Access token still valid, function returs True
             refresh_user_return = True
         else:
-            # We need to refresh access token
+            # We need to refresh access token (which will also refresh the refresh token)
             refresh_token = auth_state['refresh_token']
-            http_client = HTTPClient()
+            http_client = AsyncHTTPClient()
             url = os.environ.get('OAUTH2_TOKEN_URL')
             params = dict(
                 grant_type = 'refresh_token',
@@ -158,22 +160,50 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                           body=urllib.parse.urlencode(params)  # Body is required for a POST...
                           )
 
-            resp = http_client.fetch(req)
+            resp = await http_client.fetch(req)
 
             resp_json = json.loads(resp.body.decode('utf8', 'replace'))
 
             access_token = resp_json['access_token']
             refresh_token = resp_json.get('refresh_token', None)
+            token_type = resp_json['token_type']
             scope = resp_json.get('scope', '')
             if (isinstance(scope, str)):
                 scope = scope.split(' ')
+
+            # Determine who the logged in user is
+            headers = {
+                "Accept": "application/json",
+                "User-Agent": "JupyterHub",
+                "Authorization": "{} {}".format(token_type, access_token)
+            }
+            if self.userdata_url:
+                url = url_concat(self.userdata_url, self.userdata_params)
+            else:
+                raise ValueError("Please set the OAUTH2_USERDATA_URL environment variable")
+
+            if self.userdata_token_method == "url":
+                url = url_concat(self.userdata_url, dict(access_token=access_token))
+
+            req = HTTPRequest(url,
+                            method=self.userdata_method,
+                            headers=headers,
+                            validate_cert=self.tls_verify,
+                            )
+            resp = await http_client.fetch(req)
+            resp_json = json.loads(resp.body.decode('utf8', 'replace'))
+
+            if not resp_json.get(self.username_key):
+                self.log.error("OAuth user contains no key %s: %s", self.username_key, resp_json)
+                return
             
             refresh_user_return = {
                 'name': resp_json.get(self.username_key),
                 'auth_state': {
                     'access_token': access_token,
                     'refresh_token': refresh_token,
-                    'scope': scope
+                    'oauth_user': resp_json,
+                    'scope': scope,
                 }
             }
         print(str(refresh_user_return))
