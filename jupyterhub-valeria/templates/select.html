@@ -49,8 +49,8 @@
             <td><label for="image_spec">Image</label></td>
             <td>
                 <select name="image_spec">
-                    {% for image in image_list %}
-                        <option value="{{image}}">{{image}}</option>
+                    {% for name,image in image_list.items() %}
+                        <option value="{{image}}">{{name}}</option>
                     {% endfor %}
                 </select>
             </td>
@@ -69,31 +69,14 @@
     
     </fieldset>
     
-    <fieldset>
-    <legend>Volume options</legend>
-    <div class="fieldcontainer">
-      <div>
-        <input type="radio" name="volume" id="lustre" value="lustre" checked>
-        <label for="lustre">Lustre</label>
-      </div>
-      <div>
-        <input type="radio" name="volume" id="s3" value="s3">
-        <label for="s3">Ceph S3</label>
-      </div>
-      <div>
-        <input type="radio" name="volume" id="none" value="none">
-        <label for="none">None</label>
-      </div>
-    </div>
-    </fieldset>
-    
+ 
     <fieldset>
     <legend>Software options</legend>
     <div class="fieldcontainer">
            <input type="checkbox" id="jupyterlab" name="options" value="jupyterlab" />
            <label for="jupyterlab">JupyterLab</label><br/>
-           <input type="checkbox" id="cvmfs" name="options" value="cvmfs" />
-           <label for="cvmfs">CVMFS</label>
+           <!-- <input type="checkbox" id="cvmfs" name="options" value="cvmfs" />
+           <label for="cvmfs">CVMFS</label> -->
     </div>
     </fieldset>
     </div>
