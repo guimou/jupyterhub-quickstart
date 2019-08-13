@@ -13,7 +13,7 @@ class ULKubeSpawner(KubeSpawner):
             content = fp.read().strip()
             print(content) #TODO remove
             if content:
-                image_list = content
+                image_list = content.split(,)
         return template.render(image_list=image_list)
 
     def options_from_form(self, formdata):
