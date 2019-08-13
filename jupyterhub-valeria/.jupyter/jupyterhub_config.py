@@ -88,41 +88,41 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         
             # TODO split try
         # Retrieve information from Vault                
-        try:
-            # Login to Vault with JWT 
-            vault_url = os.environ['VAULT_URL']
-            vault_login_url = vault_url + '/v1/auth/jwt/login'
-            vault_login_json = {"role":None, "jwt": auth_state['access_token']}
-            vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
+        # try:
+        # Login to Vault with JWT 
+        vault_url = os.environ['VAULT_URL']
+        vault_login_url = vault_url + '/v1/auth/jwt/login'
+        vault_login_json = {"role":None, "jwt": auth_state['access_token']}
+        vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
 
-            # Retrieve user entity id and Vault access token
-            vault_token = vault_response_login['auth']['client_token']
-            vault_entity_id = vault_response_login['auth']['entity_id']
-        
-            # Retrieve S3 credentials and user uid
-            vault_client = hvac.Client(url=vault_url, token=vault_token)
-            if vault_client.is_authenticated():
-                secret_version_response_key = vault_client.secrets.kv.v2.read_secret_version(
-                    mount_point='valeria',
-                    path='users/' + vault_entity_id + '/ceph',
-                )
-                AWS_ACCESS_KEY_ID = secret_version_response_key['data']['data']['AWS_ACCESS_KEY_ID']
-                AWS_SECRET_ACCESS_KEY = secret_version_response_key['data']['data']['AWS_SECRET_ACCESS_KEY']
-                secret_version_response_uid = vault_client.secrets.kv.v2.read_secret_version(
-                   mount_point='valeria',
-                    path='users/' + vault_entity_id + '/uid',
-                )
-                spawner.uid = secret_version_response_uid['data']['data']['uid']
-            else:
-                AWS_ACCESS_KEY_ID = None
-                AWS_SECRET_ACCESS_KEY = None
-                uid = None
-
-        except:
-            print('No Vault connection')
+        # Retrieve user entity id and Vault access token
+        vault_token = vault_response_login['auth']['client_token']
+        vault_entity_id = vault_response_login['auth']['entity_id']
+    
+        # Retrieve S3 credentials and user uid
+        vault_client = hvac.Client(url=vault_url, token=vault_token)
+        if vault_client.is_authenticated():
+            secret_version_response_key = vault_client.secrets.kv.v2.read_secret_version(
+                mount_point='valeria',
+                path='users/' + vault_entity_id + '/ceph',
+            )
+            AWS_ACCESS_KEY_ID = secret_version_response_key['data']['data']['AWS_ACCESS_KEY_ID']
+            AWS_SECRET_ACCESS_KEY = secret_version_response_key['data']['data']['AWS_SECRET_ACCESS_KEY']
+            secret_version_response_uid = vault_client.secrets.kv.v2.read_secret_version(
+                mount_point='valeria',
+                path='users/' + vault_entity_id + '/uid',
+            )
+            spawner.uid = secret_version_response_uid['data']['data']['uid']
+        else:
             AWS_ACCESS_KEY_ID = None
             AWS_SECRET_ACCESS_KEY = None
             uid = None
+
+        """ except:
+            print('No Vault connection')
+            AWS_ACCESS_KEY_ID = None
+            AWS_SECRET_ACCESS_KEY = None
+            uid = None """
 
         # Retrieve S3ContentManager infomation and update env var to pass to notebooks
         s3_endpoint_url = os.environ.get('S3_ENDPOINT_URL')
