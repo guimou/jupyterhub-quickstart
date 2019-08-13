@@ -117,11 +117,11 @@
             "value": "jupyter-bucket",
             "required": true
         },
-	{
-	    "name": "PYSPARK_PYTHON",
-	    "value": "/bin/python3.6",
-	    "required": true
-	}
+        {
+            "name": "PYSPARK_PYTHON",
+            "value": "/bin/python3.6",
+            "required": true
+        }
     ],
     "objects": [
         {

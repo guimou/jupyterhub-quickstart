@@ -231,14 +231,14 @@ keycloak_realm = os.environ.get('KEYCLOAK_REALM')
 keycloak_account_url = 'https://%s/auth/realms/%s/account' % (keycloak_hostname, keycloak_realm)
 
 c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
-# following line: workaround to make OAuth work, reference: https://github.com/jupyterhub/oauthenticator/issues/271
+# Following line: workaround to make OAuth work, reference: https://github.com/jupyterhub/oauthenticator/issues/271
 c.JupyterHub.authenticator_class.login_handler._OAUTH_AUTHORIZE_URL = 'https://%s/auth/realms/%s/protocol/openid-connect/auth' % (keycloak_hostname, keycloak_realm)
 c.GenericOAuthenticator.login_service = "Valeria"
 c.GenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % jupyterhub_hostname
 c.GenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
 c.GenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 c.GenericOAuthenticator.tls_verify = False
-# enable authentication state
+# Enable authentication state
 c.GenericOAuthenticator.enable_auth_state = True
 # Force refresh of tokens before spawning
 c.GenericOAuthenticator.refresh_pre_spawn = True
@@ -264,7 +264,7 @@ c.KubeSpawner.volume_mounts = [
 
 # Start Notebook in user directory
 c.KubeSpawner.notebook_dir = '/users'
-c.KubeSpawner.default_url = '/tree/' + {username}
+c.KubeSpawner.default_url = '/tree/home/' + {username}
 
 
 # Populate admin users and use white list from config maps.
