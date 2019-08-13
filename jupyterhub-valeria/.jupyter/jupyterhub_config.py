@@ -125,7 +125,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
 
         # Retrieve S3ContentManager infomation and update env var to pass to notebooks
         s3_endpoint_url = os.environ.get('S3_ENDPOINT_URL')
-        spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY)
+        spawner.environment.update(dict(S3_ENDPOINT_URL=s3_endpoint_url,AWS_ACCESS_KEY_ID=AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY=AWS_SECRET_ACCESS_KEY))
     
     # Refresh user access and refresh tokens (called periodically)
     async def refresh_user(self, user, handler=None):
