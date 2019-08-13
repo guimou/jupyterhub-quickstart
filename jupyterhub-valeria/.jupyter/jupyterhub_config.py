@@ -1,5 +1,6 @@
 import os
 import warnings
+import ast
 from jinja2 import Template
 from kubespawner import KubeSpawner
 
@@ -11,9 +12,8 @@ class ULKubeSpawner(KubeSpawner):
             template = Template(file_.read())
         with open('/opt/app-root/configs/image_list.txt') as fp:
             content = fp.read().strip()
-            print(content) #TODO remove
             if content:
-                image_list = content.split(',')
+                image_list = ast.literal_eval(content)
         return template.render(image_list=image_list)
 
     def options_from_form(self, formdata):
