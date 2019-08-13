@@ -11,6 +11,7 @@ class ULKubeSpawner(KubeSpawner):
             template = Template(file_.read())
         with open('/opt/app-root/configs/image_list.txt') as fp:
             content = fp.read().strip()
+            print(content) #TODO remove
             if content:
                 image_list = content
         return template.render(image_list=image_list)
