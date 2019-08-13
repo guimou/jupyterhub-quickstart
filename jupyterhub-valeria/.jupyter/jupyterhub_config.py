@@ -103,17 +103,18 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             # Retrieve S3 credentials and user uid
             vault_client = hvac.Client(url=vault_url, token=vault_token)
             if vault_client.is_authenticated():
-                secret_version_response = vault_client.secrets.kv.v2.read_secret_version(
+                print('Vault authenticated')
+                secret_version_response_key = vault_client.secrets.kv.v2.read_secret_version(
                     mount_point='valeria',
                     path='users/' + vault_entity_id + '/ceph',
                 )   
-                AWS_ACCESS_KEY_ID = secret_version_response['data']['data']['AWS_ACCESS_KEY_ID']
-                AWS_SECRET_ACCESS_KEY = secret_version_response['data']['data']['AWS_SECRET_ACCESS_KEY']
-                secret_version_response = vault_client.secrets.kv.v2.read_secret_version(
+                AWS_ACCESS_KEY_ID = secret_version_response_key['data']['data']['AWS_ACCESS_KEY_ID']
+                AWS_SECRET_ACCESS_KEY = secret_version_response_key['data']['data']['AWS_SECRET_ACCESS_KEY']
+                secret_version_response_uid = vault_client.secrets.kv.v2.read_secret_version(
                     mount_point='valeria',
                     path='users/' + vault_entity_id + '/uid',
                 )
-                spawner.uid = secret_version_response['data']['data']['uid']
+                spawner.uid = secret_version_response_uid['data']['data']['uid']
             else:
                 AWS_ACCESS_KEY_ID = None
                 AWS_SECRET_ACCESS_KEY = None
@@ -121,7 +122,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
 
         except Exception as e:
             print('No Vault connection')
-            print(str(e))
+            print(e)
             AWS_ACCESS_KEY_ID = None
             AWS_SECRET_ACCESS_KEY = None
             uid = None
