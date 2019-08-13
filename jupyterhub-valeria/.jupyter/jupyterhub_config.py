@@ -75,7 +75,6 @@ from tornado import gen
 class EnvGenericOAuthenticator(GenericOAuthenticator):
     # Before spawning the notebook, we retrieve some information from Vault
     async def pre_spawn_start(self, user, spawner):
-        print('Entering pre_spawn') #TODO remove
         import hvac
         import json
         import requests
@@ -135,13 +134,10 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         import json
         from tornado.httpclient import HTTPRequest, AsyncHTTPClient
         from tornado.httputil import url_concat
-        print('Entering refresh') #TODO remove
         # Retrieve user authentication info, decode, and check if refresh is needed
         auth_state = await user.get_auth_state()
-        print(auth_state['access_token']) #TODO remove
         decoded = jwt.decode(auth_state['access_token'], verify=False)
         diff=decoded['exp']-time.time()
-        print(diff) #TODO remove
         if diff>0:
             # Access token still valid, function returs True
             refresh_user_return = True
@@ -167,6 +163,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                           validate_cert=self.tls_verify,
                           body=urllib.parse.urlencode(params)  # Body is required for a POST...
                           )
+            print('Requete:')
             print(req)
             resp = await http_client.fetch(req)
 
@@ -244,7 +241,6 @@ c.GenericOAuthenticator.refresh_pre_spawn = True
 
 # Setup persistent storage on NFS
 c.KubeSpawner.service_account = 'notebook'
-# c.KubeSpawner.uid=uid # TODO Remove
 c.KubeSpawner.volumes = [
     {
         'name': 'home',
