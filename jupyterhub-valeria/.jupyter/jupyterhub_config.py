@@ -228,7 +228,6 @@ if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
 # Configure KeyCloak as authentication provider.
 keycloak_hostname = os.environ.get('KEYCLOAK_HOSTNAME')
 keycloak_realm = os.environ.get('KEYCLOAK_REALM')
-keycloak_account_url = 'https://%s/auth/realms/%s/account' % (keycloak_hostname, keycloak_realm)
 
 c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
 # Following line: workaround to make OAuth work, reference: https://github.com/jupyterhub/oauthenticator/issues/271
