@@ -167,7 +167,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                           validate_cert=self.tls_verify,
                           body=urllib.parse.urlencode(params)  # Body is required for a POST...
                           )
-
+            print(req)
             resp = await http_client.fetch(req)
 
             resp_json = json.loads(resp.body.decode('utf8', 'replace'))
