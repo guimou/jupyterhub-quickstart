@@ -1,5 +1,6 @@
 import os
 import warnings
+import ast
 from jinja2 import Template
 from kubespawner import KubeSpawner
 
@@ -12,7 +13,7 @@ class ULKubeSpawner(KubeSpawner):
         with open('/opt/app-root/configs/image_list.txt') as fp:
             content = fp.read().strip()
             if content:
-                image_list = content
+                image_list = ast.literal_eval(content)
         return template.render(image_list=image_list)
 
     def options_from_form(self, formdata):
@@ -75,7 +76,6 @@ from tornado import gen
 class EnvGenericOAuthenticator(GenericOAuthenticator):
     # Before spawning the notebook, we retrieve some information from Vault
     async def pre_spawn_start(self, user, spawner):
-        print('Entering pre_spawn') #TODO remove
         import hvac
         import json
         import requests
@@ -86,6 +86,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             # user has no auth state
             return
         
+            # TODO split try
         # Retrieve information from Vault                
         try:
             # Login to Vault with JWT 
@@ -101,17 +102,17 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             # Retrieve S3 credentials and user uid
             vault_client = hvac.Client(url=vault_url, token=vault_token)
             if vault_client.is_authenticated():
-                secret_version_response = vault_client.secrets.kv.v2.read_secret_version(
+                secret_version_response_key = vault_client.secrets.kv.v2.read_secret_version(
                     mount_point='valeria',
                     path='users/' + vault_entity_id + '/ceph',
-                )   
-                AWS_ACCESS_KEY_ID = secret_version_response['data']['data']['AWS_ACCESS_KEY_ID']
-                AWS_SECRET_ACCESS_KEY = secret_version_response['data']['data']['AWS_SECRET_ACCESS_KEY']
-                secret_version_response = vault_client.secrets.kv.v2.read_secret_version(
+                )
+                AWS_ACCESS_KEY_ID = secret_version_response_key['data']['data']['AWS_ACCESS_KEY_ID']
+                AWS_SECRET_ACCESS_KEY = secret_version_response_key['data']['data']['AWS_SECRET_ACCESS_KEY']
+                secret_version_response_uid = vault_client.secrets.kv.v2.read_secret_version(
                     mount_point='valeria',
                     path='users/' + vault_entity_id + '/uid',
                 )
-                spawner.uid = secret_version_response['data']['data']['uid']
+                spawner.uid = int(secret_version_response_uid['data']['data']['uid'])
             else:
                 AWS_ACCESS_KEY_ID = None
                 AWS_SECRET_ACCESS_KEY = None
@@ -135,16 +136,21 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         import json
         from tornado.httpclient import HTTPRequest, AsyncHTTPClient
         from tornado.httputil import url_concat
-        print('Entering refresh') #TODO remove
+        print('Entering refresh')
         # Retrieve user authentication info, decode, and check if refresh is needed
         auth_state = await user.get_auth_state()
-        print(auth_state['access_token']) #TODO remove
-        decoded = jwt.decode(auth_state['access_token'], verify=False)
-        diff=decoded['exp']-time.time()
-        print(diff) #TODO remove
-        if diff>0:
-            # Access token still valid, function returs True
+        access_token = jwt.decode(auth_state['access_token'], verify=False)
+        refresh_token = jwt.decode(auth_state['refresh_token'], verify=False)
+        diff_access=access_token['exp']-time.time()
+        diff_refresh=refresh_token['exp']-time.time()
+        print(diff_access)
+        print(diff_refresh)
+        if diff_access>0:
+            # Access token still valid, function returns True
             refresh_user_return = True
+        elif diff_refresh<0:
+            # Refresh token not valid, need to completely reauthenticate
+            refresh_user_return = False
         else:
             # We need to refresh access token (which will also refresh the refresh token)
             refresh_token = auth_state['refresh_token']
@@ -167,7 +173,6 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                           validate_cert=self.tls_verify,
                           body=urllib.parse.urlencode(params)  # Body is required for a POST...
                           )
-
             resp = await http_client.fetch(req)
 
             resp_json = json.loads(resp.body.decode('utf8', 'replace'))
@@ -214,7 +219,6 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                     'scope': scope,
                 }
             }
-        print(str(refresh_user_return))
         return refresh_user_return
         
 
@@ -228,7 +232,6 @@ if 'JUPYTERHUB_CRYPT_KEY' not in os.environ:
 # Configure KeyCloak as authentication provider.
 keycloak_hostname = os.environ.get('KEYCLOAK_HOSTNAME')
 keycloak_realm = os.environ.get('KEYCLOAK_REALM')
-keycloak_account_url = 'https://%s/auth/realms/%s/account' % (keycloak_hostname, keycloak_realm)
 
 c.JupyterHub.authenticator_class = EnvGenericOAuthenticator
 # Following line: workaround to make OAuth work, reference: https://github.com/jupyterhub/oauthenticator/issues/271
@@ -245,7 +248,6 @@ c.GenericOAuthenticator.refresh_pre_spawn = True
 
 # Setup persistent storage on NFS
 c.KubeSpawner.service_account = 'notebook'
-# c.KubeSpawner.uid=uid # TODO Remove
 c.KubeSpawner.volumes = [
     {
         'name': 'home',
@@ -264,7 +266,7 @@ c.KubeSpawner.volume_mounts = [
 
 # Start Notebook in user directory
 c.KubeSpawner.notebook_dir = '/users'
-c.KubeSpawner.default_url = '/tree/home/' + {username}
+c.KubeSpawner.default_url = '/tree/home/{username}'
 
 
 # Populate admin users and use white list from config maps.
