@@ -107,14 +107,15 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                 secret_version_response_key = vault_client.secrets.kv.v2.read_secret_version(
                     mount_point='valeria',
                     path='users/' + vault_entity_id + '/ceph',
-                )   
+                )
+                print(secret_version_response_key)   
                 AWS_ACCESS_KEY_ID = secret_version_response_key['data']['data']['AWS_ACCESS_KEY_ID']
                 AWS_SECRET_ACCESS_KEY = secret_version_response_key['data']['data']['AWS_SECRET_ACCESS_KEY']
-                secret_version_response_uid = vault_client.secrets.kv.v2.read_secret_version(
-                    mount_point='valeria',
-                    path='users/' + vault_entity_id + '/uid',
-                )
-                spawner.uid = secret_version_response_uid['data']['data']['uid']
+                # secret_version_response_uid = vault_client.secrets.kv.v2.read_secret_version(
+                #    mount_point='valeria',
+                #     path='users/' + vault_entity_id + '/uid',
+                # )
+                # spawner.uid = secret_version_response_uid['data']['data']['uid']
             else:
                 AWS_ACCESS_KEY_ID = None
                 AWS_SECRET_ACCESS_KEY = None
