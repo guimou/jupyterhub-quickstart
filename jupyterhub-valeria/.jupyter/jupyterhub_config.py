@@ -92,11 +92,13 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             vault_url = os.environ['VAULT_URL']
             vault_login_url = vault_url + '/v1/auth/jwt/login'
             vault_login_json = {"role":None, "jwt": auth_state['access_token']}
+            print(auth_state['access_token'])
             vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
 
             # Retrieve user entity id and Vault access token
             vault_token = vault_response_login['auth']['client_token']
             vault_entity_id = vault_response_login['auth']['entity_id']
+            print(vault_entity_id)
         
             # Retrieve S3 credentials and user uid
             vault_client = hvac.Client(url=vault_url, token=vault_token)
@@ -117,8 +119,9 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                 AWS_SECRET_ACCESS_KEY = None
                 uid = None
 
-        except:
+        except Exception as e:
             print('No Vault connection')
+            print(str(e))
             AWS_ACCESS_KEY_ID = None
             AWS_SECRET_ACCESS_KEY = None
             uid = None
