@@ -263,7 +263,7 @@ c.KubeSpawner.volume_mounts = [
 ]
 
 # Start Notebook in user directory
-username = c.KubeSpawner.user.name
+username = spawner.user.name
 c.KubeSpawner.notebook_dir = '/users'
 c.KubeSpawner.default_url = '/tree/home/' + username
 
