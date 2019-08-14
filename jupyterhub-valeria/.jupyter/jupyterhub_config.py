@@ -41,12 +41,6 @@ c.Spawner.environment = {}
 # Keep Spark vars in notebooks
 c.Spawner.env_keep = ['PYSPARK_PYTHON','PYSPARK_SUBMIT_ARGS', 'PYSPARK_DRIVER_PYTHON', 'PYSPARK_DRIVER_PYTHON_OPTS', 'SPARK_HOME', 'SPARK_CLUSTER', 'PYTHONPATH']
 
-
-# TODO Remove
-# Enable JupyterLab interface if selected.  TODO: Replace by result from form
-# if os.environ.get('JUPYTERHUB_ENABLE_LAB', 'false').lower() in ['true', 'yes', 'y', '1']:
-#     c.Spawner.environment.update(dict(JUPYTER_ENABLE_LAB='true'))
-
 # Setup location for customised template files.
 c.JupyterHub.template_paths = ['/opt/app-root/src/templates']
 
@@ -131,7 +125,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                 spawner.uid = int(secret_version_response_uid['data']['data']['uid'])
             except:
                 uid = None
-                
+
         else:
             print('No Vault connection')
             AWS_ACCESS_KEY_ID = None
