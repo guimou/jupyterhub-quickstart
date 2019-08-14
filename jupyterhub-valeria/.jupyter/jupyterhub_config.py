@@ -1,9 +1,11 @@
+#########################
+# General configuration #
+#########################
 import os
 import warnings
 import ast
 from jinja2 import Template
 from kubespawner import KubeSpawner
-
 
 # Custom class to personalize templates
 class ULKubeSpawner(KubeSpawner):
@@ -26,11 +28,11 @@ class ULKubeSpawner(KubeSpawner):
 
         if 'jupyterlab' in formdata.get('options', []):
             self.cmd = ['jupyter-labhub']
-            self.default_url = '/lab'
+            self.environment.update(dict(JUPYTER_ENABLE_LAB='true'))
         
         return formdata
 
-# Load custom spawner class to integrate images list and container specs
+# Use custom spawner class to integrate images list and container specs
 c.JupyterHub.spawner_class = ULKubeSpawner
 
 # Initialize environment
@@ -39,15 +41,10 @@ c.Spawner.environment = {}
 # Keep Spark vars in notebooks
 c.Spawner.env_keep = ['PYSPARK_PYTHON','PYSPARK_SUBMIT_ARGS', 'PYSPARK_DRIVER_PYTHON', 'PYSPARK_DRIVER_PYTHON_OPTS', 'SPARK_HOME', 'SPARK_CLUSTER', 'PYTHONPATH']
 
-
-# Enable JupyterLab interface if enabled.  TODO: Replace by result from form
-if os.environ.get('JUPYTERHUB_ENABLE_LAB', 'false').lower() in ['true', 'yes', 'y', '1']:
-    c.Spawner.environment.update(dict(JUPYTER_ENABLE_LAB='true'))
-
 # Setup location for customised template files.
 c.JupyterHub.template_paths = ['/opt/app-root/src/templates']
 
-# Configure Jupyterhub hostname
+# Configure Jupyterhub hostname (using new OpenShift API)
 from kubernetes import client, config
 from openshift.dynamic import DynamicClient
 
@@ -69,6 +66,9 @@ jupyterhub_name = os.environ.get('JUPYTERHUB_SERVICE_NAME')
 jupyterhub_hostname = extract_hostname(routes, jupyterhub_name)
 
 
+##################
+# Authentication #
+##################
 # Pre-Spawn custom class to retrieve secrets from Vault using user access token
 from oauthenticator.generic import GenericOAuthenticator
 from tornado import gen
@@ -86,39 +86,47 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             # user has no auth state
             return
         
-            # TODO split try
-        # Retrieve information from Vault                
+        # Vault access configuration                
+        vault_url = os.environ['VAULT_URL']
+        vault_login_url = vault_url + '/v1/auth/jwt/login'
+        vault_login_json = {"role":None, "jwt": auth_state['access_token']}
+        
+        # Login to Vault with JWT and retrieve access token and entity_id from current user  
         try:
-            # Login to Vault with JWT 
-            vault_url = os.environ['VAULT_URL']
-            vault_login_url = vault_url + '/v1/auth/jwt/login'
-            vault_login_json = {"role":None, "jwt": auth_state['access_token']}
             vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
-
-            # Retrieve user entity id and Vault access token
             vault_token = vault_response_login['auth']['client_token']
             vault_entity_id = vault_response_login['auth']['entity_id']
-        
-            # Retrieve S3 credentials and user uid
-            vault_client = hvac.Client(url=vault_url, token=vault_token)
-            if vault_client.is_authenticated():
+        except:
+            print('No Vault connection')
+            AWS_ACCESS_KEY_ID = None
+            AWS_SECRET_ACCESS_KEY = None
+            uid = None
+            return
+
+        # We can connect, retrieve S3 credentials and user uid
+        vault_client = hvac.Client(url=vault_url, token=vault_token)
+        if vault_client.is_authenticated():
+            try:       
                 secret_version_response_key = vault_client.secrets.kv.v2.read_secret_version(
                     mount_point='valeria',
                     path='users/' + vault_entity_id + '/ceph',
                 )
                 AWS_ACCESS_KEY_ID = secret_version_response_key['data']['data']['AWS_ACCESS_KEY_ID']
                 AWS_SECRET_ACCESS_KEY = secret_version_response_key['data']['data']['AWS_SECRET_ACCESS_KEY']
+            except:
+                AWS_ACCESS_KEY_ID = None
+                AWS_SECRET_ACCESS_KEY = None
+
+            try:    
                 secret_version_response_uid = vault_client.secrets.kv.v2.read_secret_version(
                     mount_point='valeria',
                     path='users/' + vault_entity_id + '/uid',
                 )
                 spawner.uid = int(secret_version_response_uid['data']['data']['uid'])
-            else:
-                AWS_ACCESS_KEY_ID = None
-                AWS_SECRET_ACCESS_KEY = None
+            except:
                 uid = None
 
-        except:
+        else:
             print('No Vault connection')
             AWS_ACCESS_KEY_ID = None
             AWS_SECRET_ACCESS_KEY = None
@@ -136,15 +144,12 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         import json
         from tornado.httpclient import HTTPRequest, AsyncHTTPClient
         from tornado.httputil import url_concat
-        print('Entering refresh')
         # Retrieve user authentication info, decode, and check if refresh is needed
         auth_state = await user.get_auth_state()
         access_token = jwt.decode(auth_state['access_token'], verify=False)
         refresh_token = jwt.decode(auth_state['refresh_token'], verify=False)
         diff_access=access_token['exp']-time.time()
         diff_refresh=refresh_token['exp']-time.time()
-        print(diff_access)
-        print(diff_refresh)
         if diff_access>0:
             # Access token still valid, function returns True
             refresh_user_return = True
@@ -241,19 +246,26 @@ c.GenericOAuthenticator.oauth_callback_url = 'https://%s/hub/oauth_callback' % j
 c.GenericOAuthenticator.client_id = os.environ.get('OAUTH_CLIENT_ID')
 c.GenericOAuthenticator.client_secret = os.environ.get('OAUTH_CLIENT_SECRET')
 c.GenericOAuthenticator.tls_verify = False
-# Enable authentication state
+
+# Enable authentication state to store tokens
 c.GenericOAuthenticator.enable_auth_state = True
 # Force refresh of tokens before spawning
 c.GenericOAuthenticator.refresh_pre_spawn = True
 
+#########################
+# Storage configruation #
+#########################
+
 # Setup persistent storage on NFS
 c.KubeSpawner.service_account = 'notebook'
+nfs_server = os.environ.get('NFS_SERVER')
+nfs_path = os.environ.get('NFS_PATH')
 c.KubeSpawner.volumes = [
     {
         'name': 'home',
         'nfs': {
-            'server': '10.250.111.190',
-            'path': '/mnt/nfsexport'
+            'server': nfs_server,
+            'path': nfs_path
         }
     }
 ]
@@ -268,6 +280,10 @@ c.KubeSpawner.volume_mounts = [
 c.KubeSpawner.notebook_dir = '/users'
 c.KubeSpawner.default_url = '/tree/home/{username}'
 
+
+#######################
+# Misc configurations #
+#######################
 
 # Populate admin users and use white list from config maps.
 if os.path.exists('/opt/app-root/configs/admin_users.txt'):

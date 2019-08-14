@@ -104,7 +104,17 @@
         },
         {
             "name": "VAULT_URL",
-                "value": "",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "NFS_SERVER",
+            "value": "",
+            "required": true
+        },
+        {
+            "name": "NFS_PATH",
+            "value": "",
             "required": true
         },
         {
