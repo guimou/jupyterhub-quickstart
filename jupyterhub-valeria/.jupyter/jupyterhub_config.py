@@ -259,12 +259,14 @@ c.GenericOAuthenticator.refresh_pre_spawn = True
 
 # Setup persistent storage on NFS
 c.KubeSpawner.service_account = 'notebook'
+nfs_server = os.environ.get('NFS_SERVER')
+nfs_path = os.environ.get('NFS_PATH')
 c.KubeSpawner.volumes = [
     {
         'name': 'home',
         'nfs': {
-            'server': '10.250.111.190',
-            'path': '/mnt/nfsexport'
+            'server': nfs_server,
+            'path': nfs_path
         }
     }
 ]
