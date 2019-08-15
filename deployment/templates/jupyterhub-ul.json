@@ -59,7 +59,7 @@
         },
         {
             "name": "JUPYTERHUB_IMAGE_LIST",
-            "value": "",
+            "value": "{'Minimal Python Notebook':'s2i-minimal-notebook-s3:prod','SciPy Notebook':'s2i-scipy-notebook-s3:prod','Tensorflow Notebook':'s2i-tensorflow-notebook-s3:prod','Spark Notebook':'s2i-spark-notebook-s3:prod','R Tensorflow Notebook':'s2i-tensorflow-r-notebook-s3:prod','R Notebook':'s2i-r-notebook-s3:prod'}",
             "required": false
         },
         {
