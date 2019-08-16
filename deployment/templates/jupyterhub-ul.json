@@ -59,6 +59,7 @@
         },
         {
             "name": "JUPYTERHUB_IMAGE_LIST",
+            "description": "List of the different images for the jupyter notebook",
             "value": "{'Minimal Python Notebook':'s2i-minimal-notebook-s3:prod','SciPy Notebook':'s2i-scipy-notebook-s3:prod','Tensorflow Notebook':'s2i-tensorflow-notebook-s3:prod','Spark Notebook':'s2i-spark-notebook-s3:prod','R Tensorflow Notebook':'s2i-tensorflow-r-notebook-s3:prod','R Notebook':'s2i-r-notebook-s3:prod'}",
             "required": false
         },
@@ -74,16 +75,19 @@
         },
         {
             "name": "KEYCLOAK_HOSTNAME",
+            "description": "Hostname of Keycloak for authentification",
             "value": "",
             "required": false
         },
         {
             "name": "KEYCLOAK_REALM",
             "value": "",
+            "description": "realm name from Keycloak",
             "required": false
         },
         {
             "name": "OAUTH2_TOKEN_URL",
+            "description": "token for authentification",
             "value": "",
             "required": true
         },
@@ -129,6 +133,7 @@
         },
         {
             "name": "PYSPARK_PYTHON",
+            "description": "Python path for spark worker",
             "value": "/bin/python3.6",
             "required": true
         }
