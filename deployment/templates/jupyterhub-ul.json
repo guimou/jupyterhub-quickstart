@@ -408,10 +408,18 @@
                                         "name": "VAULT_URL",
                                         "value": "${VAULT_URL}"
                                     },
-				    {
-					"name": "PYSPARK_PYTHON",
-					"value": "${PYSPARK_PYTHON}"
-				    }
+                                    {
+                                        "name": "PYSPARK_PYTHON",
+                                        "value": "${PYSPARK_PYTHON}"
+                                    },
+                                    {
+                                        "name": "NFS_SERVER",
+                                        "value": "${NFS_SERVER}"
+                                    },
+                                    {
+                                        "name": "NFS_PATH",
+                                        "value": "${NFS_PATH}"
+                                    }
                                 ],
                                 "volumeMounts": [
                                     {
