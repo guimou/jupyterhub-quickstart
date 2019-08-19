@@ -96,6 +96,7 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
             vault_token = vault_response_login['auth']['client_token']
             vault_entity_id = vault_response_login['auth']['entity_id']
+            print (vault_entity_id)
         except:
             print('No Vault connection')
             AWS_ACCESS_KEY_ID = None
@@ -122,12 +123,13 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
                     mount_point='valeria',
                     path='users/' + vault_entity_id + '/uid',
                 )
+
                 spawner.uid = int(secret_version_response_uid['data']['data']['uid'])
             except:
                 uid = None
 
         else:
-            print('No Vault connection')
+            print('No Vault connection due to uid or AWS')
             AWS_ACCESS_KEY_ID = None
             AWS_SECRET_ACCESS_KEY = None
             uid = None
