@@ -90,10 +90,12 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
         vault_url = os.environ['VAULT_URL']
         vault_login_url = vault_url + '/v1/auth/jwt/login'
         vault_login_json = {"role":None, "jwt": auth_state['access_token']}
-        
+        print (vault_login_json)
+
         # Login to Vault with JWT and retrieve access token and entity_id from current user  
         try:
             vault_response_login = requests.post(url = vault_login_url, json = vault_login_json).json()
+            print (vault_response_login)
             vault_token = vault_response_login['auth']['client_token']
             vault_entity_id = vault_response_login['auth']['entity_id']
             print (vault_entity_id)
