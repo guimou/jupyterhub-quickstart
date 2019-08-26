@@ -97,7 +97,8 @@ class EnvGenericOAuthenticator(GenericOAuthenticator):
             vault_token = vault_response_login['auth']['client_token']
             vault_entity_id = vault_response_login['auth']['entity_id']
             print (vault_entity_id)
-        except:
+        except Exception as e : 
+            print(e)
             print('No Vault connection')
             AWS_ACCESS_KEY_ID = None
             AWS_SECRET_ACCESS_KEY = None
