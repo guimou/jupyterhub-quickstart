@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sparky-cluster
+  labels:
+    radanalytics.io/kind: SparkCluster
+data:
+  config: |-
+    worker:
+      instances: "2"
+    master:
+      instances: "1"
+    customImage: docker-registry.default.svc:5000/val-jupyterhubul/spark-py36:latest
+    # create a service with the Spark UI, defaults to true

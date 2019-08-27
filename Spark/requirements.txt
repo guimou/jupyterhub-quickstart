@@ -1,0 +1,4 @@
+### scipy-notebook
+
+pyspark==2.4.3
+findspark==1.3.*
