@@ -234,46 +234,6 @@
                     },
                     "spec": {
                         "serviceAccountName": "${APPLICATION_NAME}-hub",
-                        "initContainers": [
-                            {
-                                "name": "wait-for-database",
-                                "image": "${JUPYTERHUB_IMAGE}",
-                                "command": [ "wait-for-database" ],
-                                "resources": {
-                                    "limits": {
-                                        "memory": "${JUPYTERHUB_MEMORY}"
-                                    }
-                                },
-                                "env": [
-                                    {
-                                        "name": "JUPYTERHUB_DATABASE_USER",
-                                        "valueFrom": {
-                                            "secretKeyRef": {
-                                                "name": "valeria-jupyterhub-secrets",
-                                                "key": "database_username"
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "name": "JUPYTERHUB_DATABASE_PASSWORD",
-                                        "valueFrom": {
-                                            "secretKeyRef": {
-                                                "name": "valeria-jupyterhub-secrets",
-                                                "key": "database_password"
-                                            }
-                                        }
-                                    },
-                                    {
-                                        "name": "JUPYTERHUB_DATABASE_HOST",
-                                        "value": "${JUPYTERHUB_DATABASE_HOST}"
-                                    },
-                                    {
-                                        "name": "JUPYTERHUB_DATABASE_NAME",
-                                        "value": "${JUPYTERHUB_DATABASE_NAME}"
-                                    }
-                                ]
-                            }
-                        ],
                         "containers": [
                             {
                                 "name": "jupyterhub",
